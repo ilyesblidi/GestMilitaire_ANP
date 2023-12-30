@@ -1,0 +1,16 @@
+"C:\Program Files\JetBrains\CLion 2023.3.2\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.3.2/bin/ninja/win/x64/ninja.exe" set(CMAKE_SYSTEM_NAME Windows) set(CMAKE_SYSTEM_VERSION 10.0 CACHE TYPE INTERNAL) set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc) set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++) set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres) set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER) set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY) set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY) -G Ninja -S C:\Users\Admin\CLionProjects\TP_01 -B C:\Users\Admin\CLionProjects\TP_01\cmake-build-debug
+CMake Warning:
+  Ignoring extra path from command line:
+
+   "C:/Users/Admin/CLionProjects/TP_01/cmake-build-debug/set(CMAKE_SYSTEM_NAME"
+
+
+CMake Warning:
+  Ignoring extra path from command line:
+
+   "ONLY)"
+
+
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: C:/Users/Admin/CLionProjects/TP_01/cmake-build-debug
