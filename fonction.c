@@ -533,7 +533,8 @@ void chargementInitial(FILE *fichier, int nbenrg) {
 
                 menrg.cle = ienrg.cle;
                 ptr = strdup(enrg.Region_militaire);
-                menrg.indice = getIndiceMilitaire(ptr);
+                menrg.indice =
+                        getIndiceMilitaire(ptr);
 
                 merng1.cle = ienrg.cle;
                 ptr1 = strdup(enrg.Force_armee);
@@ -597,62 +598,62 @@ void chargementInitial(FILE *fichier, int nbenrg) {
  * @param fichier The file to insert the record into.
  * @param enrg The record to be inserted.
  */
-void insertion(FILE *fichier, tenrg enrg, bool *existe , Index *index1, IndexM *index2, IndexM *index3, IndexM *index4) {
-    Menrg menrg1,menrg2;
-    int k, N, nb;
-    N = 0;
-    nb = 0;
-    bool trouv = false;
-    rechDicoTableIndex(enrg.Matricule, &trouv, &k, *index1);
-    printf("\ntrouv = %d",trouv);
-    *existe = trouv ;
-    if (trouv == false) {
-        Ienrg ienrg;
-        Menrg menrg;
-        N = entete(fichier, 1);
-        if (N != 0) {
-            LireDir(fichier, N, &buffer);
-            nb = entete(fichier, 2);
-        } else {
-            N = 1;
-            aff_entete(fichier, 1, 1);
-            nb = 0;
-            aff_entete(fichier, 2, nb);
-        }
-        if (nb < 1024) {
-            nb += 1;
-            buffer.tab[nb - 1] = enrg;
-            EcrireDir(fichier, N, &buffer);
-        } else {
-            nb = 1;
-            buffer = *alloc_bloc(fichier);
-            buffer.tab[nb - 1] = enrg;
-            EcrireDir(fichier, N + 1, &buffer);
-            aff_entete(fichier, 1, N + 1);
-        }
-        aff_entete(fichier, 2, nb);
-        ienrg.cle = enrg.Matricule;
-        ienrg.adress.nbBloc = entete(fichier, 1);
-        ienrg.adress.nbEnrg = entete(fichier, 2)-1;
-
-        menrg.indice = getIndiceMilitaire(enrg.Region_militaire);
-        menrg.cle = enrg.Matricule;
-
-        menrg1.indice = getIndiceForce(enrg.Force_armee);
-        menrg1.cle = enrg.Matricule;
-
-        menrg2.indice = getIndiceGrade(enrg.Grade);
-        menrg2.cle = enrg.Matricule;
-
-        insertionIndex(ienrg, k, index1);
-        insertionIndexS(menrg, index2);
-        insertionIndexS(menrg1,index3);
-        insertionIndexS(menrg2,index4);
-        printf("\ninsertion avec succes.");
-    } else {
-        printf("\nl'enregistrement que vous voulez inserer existe deja.\n");
-    }
-}
+//void insertion(FILE *fichier, tenrg enrg, bool *existe , Index *index1, IndexM *index2, IndexM *index3, IndexM *index4) {
+//    Menrg menrg1,menrg2;
+//    int k, N, nb;
+//    N = 0;
+//    nb = 0;
+//    bool trouv = false;
+//    rechDicoTableIndex(enrg.Matricule, &trouv, &k, *index1);
+//    printf("\ntrouv = %d",trouv);
+//    *existe = trouv ;
+//    if (trouv == false) {
+//        Ienrg ienrg;
+//        Menrg menrg;
+//        N = entete(fichier, 1);
+//        if (N != 0) {
+//            LireDir(fichier, N, &buffer);
+//            nb = entete(fichier, 2);
+//        } else {
+//            N = 1;
+//            aff_entete(fichier, 1, 1);
+//            nb = 0;
+//            aff_entete(fichier, 2, nb);
+//        }
+//        if (nb < 1024) {
+//            nb += 1;
+//            buffer.tab[nb - 1] = enrg;
+//            EcrireDir(fichier, N, &buffer);
+//        } else {
+//            nb = 1;
+//            buffer = *alloc_bloc(fichier);
+//            buffer.tab[nb - 1] = enrg;
+//            EcrireDir(fichier, N + 1, &buffer);
+//            aff_entete(fichier, 1, N + 1);
+//        }
+//        aff_entete(fichier, 2, nb);
+//        ienrg.cle = enrg.Matricule;
+//        ienrg.adress.nbBloc = entete(fichier, 1);
+//        ienrg.adress.nbEnrg = entete(fichier, 2)-1;
+//
+//        menrg.indice = getIndiceMilitaire(enrg.Region_militaire);
+//        menrg.cle = enrg.Matricule;
+//
+//        menrg1.indice = getIndiceForce(enrg.Force_armee);
+//        menrg1.cle = enrg.Matricule;
+//
+//        menrg2.indice = getIndiceGrade(enrg.Grade);
+//        menrg2.cle = enrg.Matricule;
+//
+//        insertionIndex(ienrg, k, index1);
+//        insertionIndexS(menrg, index2);
+//        insertionIndexS(menrg1,index3);
+//        insertionIndexS(menrg2,index4);
+//        printf("\ninsertion avec succes.");
+//    } else {
+//        printf("\nl'enregistrement que vous voulez inserer existe deja.\n");
+//    }
+//}
 
 
 /**
@@ -765,9 +766,10 @@ void SuppersionEnrg(FILE *fichier, Buffer *buf, int i, int j, Index *index1) {
             aff_entete(fichier, 2, 1024);
         }
     }
-//    suppersionIndex(k1, index1);
-//    suppressionIndexM(buf->tab[j].Matricule, &indexM);
-//    suppressionIndexM(buf->tab[j].Matricule,&indexG);
+    suppersionIndex(k1, index1);
+    suppressionIndexM(buf->tab[j].Matricule, &indexM);
+    suppressionIndexM(buf->tab[j].Matricule,&indexG);
+    suppressionIndexM(buf->tab[j].Matricule,&indexF);
 }
 /**
  * Modifies the military region of a record in the file.
@@ -1024,12 +1026,11 @@ void Fragmentation(FILE *fichierSource) {
 
 void supprimerForceArme( char *forceArme) {
     int indice = getIndiceForce(forceArme);
-        FILE *F;
+    FILE *F;
     FILE *fich;
     FILE *Fi;
     FILE *fichierSource;
     Ouvrire(&fichierSource, "PERSONNEL-ANP_DZ.dat", 'A');
-//    Ouvrire(&fic, "PERSONNEL-ANP_DZ.idx", 'A');
     Chargement_index(&indexP);
     Ouvrire(&fich,"FORCE_ARME_INDEX.idx",'A');
     Chargement_indexM(fich,&indexF);

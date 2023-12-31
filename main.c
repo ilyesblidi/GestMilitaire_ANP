@@ -278,7 +278,7 @@ void search_button_clicked(GtkWidget *widget, gpointer userdata) {
 
         resultWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
         gtk_window_set_title(GTK_WINDOW(resultWindow), "Result Window");
-        gtk_window_set_default_size(GTK_WINDOW(resultWindow), 500, 500);
+        gtk_window_set_default_size(GTK_WINDOW(resultWindow), 500, 400);
         gtk_window_set_position(GTK_WINDOW(resultWindow), GTK_WIN_POS_CENTER);
 
         // Set the background color of the result window
@@ -421,7 +421,6 @@ typedef struct {
 void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
 
     FILE *fichier ,*fich ,*Fi ,*F ;
-    bool trouve;
 
     // Get the user data containing mainWindow and entry buffers
     UserDataButton5 *data = (UserDataButton5 *)user_data;
@@ -447,7 +446,6 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
     selectedDate.year = year;
     selectedDate.month = month + 1;  // Adjust for zero-based month in GtkCalendar
     selectedDate.day = day;
-
     //printf("\nday : %d ; month : %d ; year : %d ",selectedDate.day,selectedDate.month,selectedDate.year);
 
     /** ICI ON AJOUTE : Inser_enreg(enreg,Fd); **/
@@ -465,7 +463,6 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
     strcpy(e.Force_armee , force);
     e.Date_Naissance = selectedDate ;
 
-
     Ouvrire(&fichier, "PERSONNEL-ANP_DZ.dat", 'A');
     Ouvrire(&fich, "MILITAIRE_INDEX.idx", 'A');
     Ouvrire(&Fi, "FORCE_ARME_INDEX.idx", 'A');
@@ -474,11 +471,65 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
     Chargement_indexM(Fi, &indexF);
     Chargement_indexM(F, &indexG);
     Chargement_index(&indexP);
-    Lecture = 0;Ecriture = 0;
+    Lecture = 0;
+    Ecriture = 0;
 
-    insertion(fichier, e, &trouve, &indexP, &indexM, &indexF, &indexG);
+            //insertion(fichier, e, &trouve, &indexP, &indexM, &indexF, &indexG);//
+    /************************************************************************************/
+    Menrg menrg1,menrg2;
+    int k, N, nb;
+    bool trouv = false;
+    rechDicoTableIndex(e.Matricule, &trouv, &k, indexP);
+    printf("\ntrouv = %d",trouv);
+    if (trouv == false) {
+        Ienrg ienrg;
+        Menrg menrg;
+        N = entete(fichier, 1);
+        if (N != 0) {
+            LireDir(fichier, N, &buffer);
+            nb = entete(fichier, 2);
+        } else {
+            N = 1;
+            aff_entete(fichier, 1, 1);
+            nb = 0;
+            aff_entete(fichier, 2, nb);
+        }
+        if (nb < 1024) {
+            nb += 1;
+            buffer.tab[nb - 1] = e;
+            EcrireDir(fichier, N, &buffer);
+        } else {
+            nb = 1;
+            buffer = *alloc_bloc(fichier);
+            buffer.tab[nb - 1] = e;
+            EcrireDir(fichier, N + 1, &buffer);
+            aff_entete(fichier, 1, N + 1);
+        }
+        aff_entete(fichier, 2, nb);
+        ienrg.cle = e.Matricule;
+        ienrg.adress.nbBloc = entete(fichier, 1);
+        ienrg.adress.nbEnrg = entete(fichier, 2)-1;
 
-    if(trouve == false){
+        menrg.indice = getIndiceMilitaire(e.Region_militaire);
+        menrg.cle = e.Matricule;
+
+        menrg1.indice = getIndiceForce(e.Force_armee);
+        menrg1.cle = e.Matricule;
+
+        menrg2.indice = getIndiceGrade(e.Grade);
+        menrg2.cle = e.Matricule;
+
+        insertionIndex(ienrg, k, &indexP);
+        insertionIndexS(menrg, &indexM);
+        insertionIndexS(menrg1,&indexF);
+        insertionIndexS(menrg2,&indexG);
+        printf("\ninsertion avec succes.");
+    } else {
+        printf("\nl'enregistrement que vous voulez inserer existe deja.\n");
+    }
+    /************************************************************************************/
+
+    if(trouv == false){
         GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
                                                           GTK_DIALOG_MODAL,
                                                           GTK_MESSAGE_WARNING,
@@ -710,11 +761,10 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     int cle = atoi(number) ;
 
     /** supprimer_enreg(fichier: Fd , Matricule: number); **/
-    FILE *fic ,*fich ,*Fi ,*F ;
-    bool trouve;
+    FILE *fichier ,*fich ,*Fi ,*F ;
 
     Chargement_index(&indexP);
-    Ouvrire(&fic,"PERSONNEL-ANP_DZ.dat",'A');
+    Ouvrire(&fichier,"PERSONNEL-ANP_DZ.dat",'A');
     Ouvrire(&Fi,"MILITAIRE_INDEX.idx",'A');
     Ouvrire(&fich,"FORCE_ARME_INDEX.idx",'A');
     Ouvrire(&F,"GRADE_INDEX.idx",'A');
@@ -723,11 +773,73 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     Chargement_indexM(F,&indexG);
     printf("***************avant*********************\n");
     printfFichier("PERSONNEL-ANP_DZ.dat");
-    Lecture =0;Ecriture = 0;
+    Lecture =0;
+    Ecriture = 0;
 
-    suppersionEnrg(fic,cle,&trouve,&indexP); ///Kayna exception hna
+    //suppersionEnrg(fichier,cle,&trouve,&indexP); ///Kayna exception hna
+    /***********************************************************************/
+    bool trouv = false,trouv1 = false;
+    int k =0,k1 = 0;
+    int N = 2;
+    int i = 1;
+    int j = 0;
+    int nb =0;
+    Buffer buf = *alloc_bloc(fichier);
+    //N : le nombre des bloques
+    //i,j : les indices
+    //nb : le nombre des enrg dans le dernier bloque
+    //k : l'indice d'enrg qu'on va supprimer
+    rechDicoTableIndex(cle, &trouv, &k, indexP);
+    //*existe = trouv ;
+    if (trouv) {
+        N = entete(fichier, 1);
+        i = indexP.tab[k].adress.nbBloc;
+        j = indexP.tab[k].adress.nbEnrg;
+        nb = entete(fichier, 2);
+        if (i != N) {
+            LireDir(fichier, i, &buf);
+            LireDir(fichier, N, &buf1);
+            buf.tab[j] = buf1.tab[nb - 1];
+            rechDicoTableIndex(buf.tab[j].Matricule,&trouv1,&k1,indexP);
+            if(trouv1){
+                indexP.tab[k1].adress.nbBloc = i;
+                indexP.tab[k1].adress.nbEnrg = j;
+            }
+            EcrireDir(fichier, i, &buf);
+            --nb;
+            if (nb > 0) {
+                EcrireDir(fichier, N, &buf1);
+                aff_entete(fichier, 2, nb);
+            } else {
+                aff_entete(fichier, 1, N - 1);
+                aff_entete(fichier, 2, 1024);
+            }
+        } else {
+            LireDir(fichier, N, &buf);
+            buf.tab[j] = buf.tab[nb - 1];
+            rechDicoTableIndex(buf.tab[j].Matricule,&trouv1,&k1,indexP);
+            if(trouv1){
+                indexP.tab[k1].adress.nbEnrg = j;
+            }
+            --nb;
+            if (nb > 0) {
+                EcrireDir(fichier, N, &buf);
+                aff_entete(fichier, 2, nb);
+            } else {
+                aff_entete(fichier, 1, N - 1);
+                aff_entete(fichier, 2, 1024);
+            }
+        }
+        affichIndexPrimaire(indexP);
+        suppersionIndex(k, &indexP);
+        affichIndexPrimaire(indexP);
 
-    if(trouve == true){
+        affichIndexMilitaire(indexM);
+    }else{
+        printf("l'enregistrement que vous voulez supprimer n'existe pas");
+    }
+    /**********************************************************************/
+    if(trouv == true){
         GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
                                                           GTK_DIALOG_MODAL,
                                                           GTK_MESSAGE_WARNING,
@@ -751,7 +863,7 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     Sauvegarde_IndexM(Fi,indexM);
     Sauvegarde_IndexM(fich,indexF);
     Sauvegarde_IndexM(F,indexG);
-    Fermer(fic);
+    Fermer(fichier);
     Fermer(Fi);
     Fermer(fich);
     Fermer(F);
@@ -1158,13 +1270,184 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
 
         Lecture = 0;
         Ecriture = 0;
-        supprimerForceArme(selected_option); ///ne fonctionne pas
+        //supprimerForceArme(selected_option); ///ne fonctionne pas
+    printForceIndex("FORCE_ARME_INDEX.idx");
+        /**********************************************************************/
+    int indice = getIndiceForce(selected_option);
+    FILE *F;
+    FILE *fich;
+    FILE *Fi;
+    FILE *fichierSource;
+    Ouvrire(&fichierSource, "PERSONNEL-ANP_DZ.dat", 'A');
+    Chargement_index(&indexP);
+    Ouvrire(&fich,"FORCE_ARME_INDEX.idx",'A');
+    Chargement_indexM(fich,&indexF);
+    int i, j, nb;
+    Buffer buf;
+    int s, sCopy;
+    int beforI;
+    int k = 0;
+    nb = indexP.nb;
+    //POSITION OF THE FIRST RECORD OF THE FORCE ARME
+    while(indice != indexF.tab[k].indice){
+        k++;
+    }
+    //IF THE FILE IS NOT EMPTY
+    if (k != indexF.nb) {
+        _Bool trouv = false;
+        //FIND THE ADRESS OF THE FIRST RECORD OF THE FORCE ARME IN THE PRIMARY INDEX
+        rechDicoTableIndex(indexF.tab[k].cle, &trouv, &s, indexP);
+        i = indexP.tab[s].adress.nbBloc;
+        j = indexP.tab[s].adress.nbEnrg;
+        beforI = i;
+        buf = *alloc_bloc(fichierSource);
+        LireDir(fichierSource, i, &buf);
 
-        printf("le cout de suppression est %d lecture et %d ecriture\n",Lecture,Ecriture);
-        printIndexPrimaire("MATRICULE_INDEX.idx");
+        //SuppersionEnrg(fichierSource,&buf,i,j,&indexP);
+        /***************************************************************************/
+        bool trouv1 = false;
+        int k1 = 0;
+        int N = 2;
+        int nb = 0;
+
+        N = entete(fichierSource, 1);
+        nb = entete(fichierSource, 2);
+        if (i != N) {
+            LireDir(fichierSource, N, &buf1);
+            buf.tab[j] = buf1.tab[nb - 1];
+            rechDicoTableIndex(buf.tab[j].Matricule,&trouv1,&k1,indexP);
+            if(trouv1){
+                indexP.tab[k1].adress.nbBloc = i;
+                indexP.tab[k1].adress.nbEnrg = j;
+            }
+            EcrireDir(fichierSource, i, &buf);
+            --nb;
+            if (nb > 0) {
+                EcrireDir(fichierSource, N, &buf1);
+                aff_entete(fichierSource, 2, nb);
+            } else {
+                aff_entete(fichierSource, 1, N - 1);
+                aff_entete(fichierSource, 2, 1024);
+            }
+        } else {
+            buf.tab[j] = buf.tab[nb - 1];
+            rechDicoTableIndex(buf.tab[j].Matricule,&trouv1,&k1,indexP);
+            if(trouv1){
+                indexP.tab[k1].adress.nbEnrg = j;
+            }
+            --nb;
+            if (nb > 0) {
+                EcrireDir(fichierSource, N, &buf);
+                aff_entete(fichierSource, 2, nb);
+            } else {
+                aff_entete(fichierSource, 1, N - 1);
+                aff_entete(fichierSource, 2, 1024);
+            }
+        }
+        suppersionIndex(k1, &indexP);
+//        suppressionIndexM(buf.tab[j].Matricule, &indexM);
+//        suppressionIndexM(buf.tab[j].Matricule,&indexG);
+//        suppressionIndexM(buf.tab[j].Matricule,&indexF);
+        /**************************************************************************/
+
+        suppersionIndex(s, &indexP);
+        k++;
+        // DO THE SAME FOR THE REST OF THE RECORDS IN THE FORCE ARME
+        while (k < nb) {
+            int cle =0;
+            cle =indexF.tab[k].cle;
+            //FIND THE ADRESS OF THE RECORD IN THE PRIMARY INDEX
+            rechDicoTableIndex(cle, &trouv, &sCopy, indexP);
+            if(indexF.tab[k].indice == indice && trouv) {
+                s = sCopy;
+                j = indexP.tab[s].adress.nbEnrg;
+                i = indexP.tab[s].adress.nbBloc;
+                //WE READ A NEW BUFFER JUST IF THE RECORD ADDRESS IS IN A NEW BLOCK
+                if (i != beforI) {
+                    buf = *alloc_bloc(fichierSource); // Refresh the buffer for each record
+                    LireDir(fichierSource, i, &buf);
+                }
+                //DELETE THE RECORD FROM THE MAIN FILE AND UPDATE THE INDEXES
+                //SuppersionEnrg(fichierSource, &buf, i, j, &indexP);
+                /***************************************************************************/
+                bool trouv1 = false;
+                int k1 = 0;
+                int N = 2;
+                int nb = 0;
+
+                N = entete(fichierSource, 1);
+                nb = entete(fichierSource, 2);
+                if (i != N) {
+                    LireDir(fichierSource, N, &buf1);
+                    buf.tab[j] = buf1.tab[nb - 1];
+                    rechDicoTableIndex(buf.tab[j].Matricule,&trouv1,&k1,indexP);
+                    if(trouv1){
+                        indexP.tab[k1].adress.nbBloc = i;
+                        indexP.tab[k1].adress.nbEnrg = j;
+                    }
+                    EcrireDir(fichierSource, i, &buf);
+                    --nb;
+                    if (nb > 0) {
+                        EcrireDir(fichierSource, N, &buf1);
+                        aff_entete(fichierSource, 2, nb);
+                    } else {
+                        aff_entete(fichierSource, 1, N - 1);
+                        aff_entete(fichierSource, 2, 1024);
+                    }
+                } else {
+                    buf.tab[j] = buf.tab[nb - 1];
+                    rechDicoTableIndex(buf.tab[j].Matricule,&trouv1,&k1,indexP);
+                    if(trouv1){
+                        indexP.tab[k1].adress.nbEnrg = j;
+                    }
+                    --nb;
+                    if (nb > 0) {
+                        EcrireDir(fichierSource, N, &buf);
+                        aff_entete(fichierSource, 2, nb);
+                    } else {
+                        aff_entete(fichierSource, 1, N - 1);
+                        aff_entete(fichierSource, 2, 1024);
+                    }
+                }
+                suppersionIndex(k1, &indexP);
+//                suppressionIndexM(buf.tab[j].Matricule, &indexM);
+//                suppressionIndexM(buf.tab[j].Matricule,&indexG);
+//                suppressionIndexM(buf.tab[j].Matricule,&indexF);
+                /**************************************************************************/
+                suppersionIndex(s, &indexP);
+                //UPDATE THE PREVIOUS BLOCK
+                beforI = i;
+            };
+            trouv =false;
+            k++;
+        }
+    }
+//    int count = indexF.nb;
+//    for (int l = 0; l < count; ++l) {
+//        if(indexF.tab[l].indice == indice){
+//            suppressionIndexM(indexF.tab[l].cle,&indexF);
+//        }
+//    }
+        /**********************************************************************/
+
+    GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
+                                                      GTK_DIALOG_MODAL,
+                                                      GTK_MESSAGE_WARNING,
+                                                      GTK_BUTTONS_OK,
+                                                      "Supression des enregistrements d'une force armée fait avec succès");
+    gtk_dialog_run(GTK_DIALOG(warningDialog));
+    gtk_widget_destroy(warningDialog);
+
+    printf("\nle cout de suppression est %d lecture et %d ecriture\n",Lecture,Ecriture);
+        //printIndexPrimaire("MATRICULE_INDEX.idx");
         printf("***************apres*********************\n");
         printForceIndex("FORCE_ARME_INDEX.idx");
 
+    //SAVE THE UPDATED INDEXES
+    Sauvegarde_Index(indexP);
+    Fermer(fichierSource);
+    Sauvegarde_IndexM(fich,indexF);
+    Fermer(fich);
     g_free(data);
 
 }
@@ -1227,7 +1510,7 @@ typedef struct {
 } UserData_option1;
 
 int calculateAge(date birthDate) {
-    currentDate.day = 1;
+    currentDate.day = 31;
     currentDate.month = 12;
     currentDate.year = 2023;
 
@@ -1455,27 +1738,6 @@ void option2_clicked(GtkWidget *widget, gpointer data) {
 
 }
 
-int getIndiceGrade_main(char* grade){
-    int indice;
-    for (int i = 0; i < 19; ++i) {
-        if(strcmp(grade, militaryGrades[i])==0){
-            if( i>= 0 && i <= 3 ){
-                indice = 0;
-            }else if (i>= 4 && i <= 7 ){
-                indice = 1;
-            }else if (i>= 8 && i<= 12){
-                indice = 2;
-            }else if(i>= 13 && i<= 15){
-                indice = 3;
-            }else{
-                indice = 4;
-            }
-            break;
-        }
-    }
-    return indice;
-}
-
 // Callback function for the "Validate" button
 void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
 
@@ -1534,7 +1796,7 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
                    buf.tab[j].Prenom, buf.tab[j].Matricule, buf.tab[j].Date_Naissance.day,
                    buf.tab[j].Date_Naissance.month, buf.tab[j].Date_Naissance.year,
                    buf.tab[j].Wilaya_Naissance, buf.tab[j].Grade, buf.tab[j].Region_militaire,
-                   buf.tab[j].Force_armee, getGradeAssocie(getIndiceGrade_main(buf.tab[j].Grade)));
+                   buf.tab[j].Force_armee, getGradeAssocie(getIndiceGrade(buf.tab[j].Grade)));
         }
         trouv = false;
         k++;
@@ -1564,7 +1826,7 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
                            buf.tab[j].Prenom, buf.tab[j].Matricule, buf.tab[j].Date_Naissance.day,
                            buf.tab[j].Date_Naissance.month, buf.tab[j].Date_Naissance.year,
                            buf.tab[j].Wilaya_Naissance, buf.tab[j].Grade, buf.tab[j].Region_militaire,
-                           buf.tab[j].Force_armee,getGradeAssocie(getIndiceGrade_main(buf.tab[j].Grade)));
+                           buf.tab[j].Force_armee,getGradeAssocie(getIndiceGrade(buf.tab[j].Grade)));
                     //UPDATE THE PREVIOUS BLOCK
                     beforI = i;
                     z++;
@@ -1790,17 +2052,20 @@ void button_clicked(GtkWidget *widget, gpointer data) {
 }
 
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
-    // Load the background image
-    GdkPixbuf *background = gdk_pixbuf_new_from_file_at_size("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_interface\\images\\image20.jpg", 1024, 1024, NULL); //6,7,12,13,17,19,20,21
+    // Get screen dimensions
+    GdkScreen *screen = gtk_widget_get_screen(widget);
+    int screen_width = gdk_screen_get_width(screen);
+    int screen_height = gdk_screen_get_height(screen);
+
+    // Load the image at its original size
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\image000.jpg", NULL);
 
     if (background != NULL) {
         // Get the actual size of the drawing area
         int width = gtk_widget_get_allocated_width(widget);
         int height = gtk_widget_get_allocated_height(widget);
 
-        //printf("\n size %d * %d ", width, height);
-
-        // Scale the background image proportionally to fit within the widget
+        // Scale the image to cover the entire drawing area
         GdkPixbuf *scaled_background = gdk_pixbuf_scale_simple(
                 background,
                 width,
@@ -1808,18 +2073,13 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
                 GDK_INTERP_BILINEAR
         );
 
-        // Center the scaled image within the widget
-        int x_offset = (width - gdk_pixbuf_get_width(scaled_background)) / 2;
-        int y_offset = (height - gdk_pixbuf_get_height(scaled_background)) / 2;
-
-        // Use the scaled and centered image for drawing
-        gdk_cairo_set_source_pixbuf(cr, scaled_background, x_offset, y_offset);
+        // Draw the scaled image to cover the entire drawing area
+        gdk_cairo_set_source_pixbuf(cr, scaled_background, 0, 0);
         cairo_paint(cr);
 
         // Clean up
         g_object_unref(scaled_background);
         g_object_unref(background);
-
     } else {
         g_printerr("Error loading the background image\n");
     }
@@ -1828,22 +2088,39 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     return FALSE;
 }
 
+
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
-    // Get the size of the drawing area
-    int width, height;
-    gtk_widget_get_size_request(widget, &width, &height);
+    // Get screen dimensions
+    GdkScreen *screen = gtk_widget_get_screen(widget);
+    int screen_width = gdk_screen_get_width(screen);
+    int screen_height = gdk_screen_get_height(screen);
 
-    // Create a linear gradient from top to bottom
-    cairo_pattern_t *gradient = cairo_pattern_create_linear(1.0, 1.0, 1.0, height);
-    cairo_pattern_add_color_stop_rgb(gradient, 0.0, 0.0,0.5, 0.5);  // Start color (blue)
-    cairo_pattern_add_color_stop_rgb(gradient, 1.0, 1.0, 1.0, 1.0);  // End color (white)
+    // Load the image at its original size
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\splash0.jpg", NULL);
 
-    // Set the source pattern and paint
-    cairo_set_source(cr, gradient);
-    cairo_paint(cr);
+    if (background != NULL) {
+        // Get the actual size of the drawing area
+        int width = gtk_widget_get_allocated_width(widget);
+        int height = gtk_widget_get_allocated_height(widget);
 
-    // Clean up the gradient
-    cairo_pattern_destroy(gradient);
+        // Scale the image to cover the entire drawing area
+        GdkPixbuf *scaled_background = gdk_pixbuf_scale_simple(
+                background,
+                width,
+                height,
+                GDK_INTERP_BILINEAR
+        );
+
+        // Draw the scaled image to cover the entire drawing area
+        gdk_cairo_set_source_pixbuf(cr, scaled_background, 0, 0);
+        cairo_paint(cr);
+
+        // Clean up
+        g_object_unref(scaled_background);
+        g_object_unref(background);
+    } else {
+        g_printerr("Error loading the background image\n");
+    }
 
     // Let the default handler do its job
     return FALSE;
@@ -1866,31 +2143,6 @@ void on_image_clicked(GtkWidget *widget, gpointer data) {
 
 int main(int argc, char *argv[]) {
 
-    /*********************************** BACK END *********************************/
-///    Ouvrire(&f,"Matricule_Index.idx",'A');
-//        Ouvrire(&Fi, "PERSONNEL-ANP_DZ.dat", 'N');
-//        chargementInitial(Fi,1200);
-//        printfFichier("PERSONNEL-ANP_DZ.dat");
-//        Chargement_index(&index1);
-//        rechDicoTableIndex(997885,&trouv,&k,index1);
-//    Chargement_indexS(&indexS1, 1);
-//    Chargement_indexS(&indexS2, 2);
-//        printIndexPrimaire("Matricule_Index.idx");
-//        printf("%d dans %d-%d a %d",index1.tab[k].cle,index1.tab[k].adress.nbBloc,index1.tab[k].adress.nbEnrg,k);
-//        suppersionEnrg(997885, &indexS1, &indexS2);
-
-//    suppressionForceArme("Armee_de_terre", &indexS1, &indexS2);
-//    afficherfichierindex("index.dat(force_militaire)");
-//    printf("-------------------------------------------------------------------------\n");
-//    afficherfichierindex("index(region_militaire).dat");
-//    Sauvegarde_IndexS(indexS1,1);
-//    Sauvegarde_IndexS(indexS2,2);
-
-    //Fermer(Fi);
-
-    //initIndex(&index1);
-
-    /*****************************************************************************/
     // Initialize GTK
     gtk_init(&argc, &argv);
 
@@ -1900,7 +2152,7 @@ int main(int argc, char *argv[]) {
     gtk_window_set_title(GTK_WINDOW(splash_window), "Your Program Name");
     gtk_window_set_decorated(GTK_WINDOW(splash_window), FALSE); // Remove title bar and borders
     gtk_window_set_position(GTK_WINDOW(splash_window), GTK_WIN_POS_CENTER); // Center the window
-    gtk_widget_set_size_request(splash_window, 600, 350); // Set window size
+    gtk_widget_set_size_request(splash_window, 700, 400); // Set window size
 
     // Set the draw signal handler for the main window
     g_signal_connect(splash_window, "draw", G_CALLBACK(on_draw), NULL);
@@ -1909,31 +2161,28 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_app_paintable(splash_window, TRUE);
 
     // Create a vertical box to hold the title label and buttons
-    GtkWidget *vvbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 20);
+    GtkWidget *vvbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 25);
     gtk_container_add(GTK_CONTAINER(splash_window), vvbox);
 
     // Create the title label
     GtkWidget *titleLabel1 = gtk_label_new("ECOLE NATIONALE SUPERIEURE DE L'INFORMATIQUE");
     PangoFontDescription *font_desc1 = pango_font_description_new();
-    pango_font_description_set_size(font_desc1, PANGO_SCALE * 14); // Set font size
-    pango_font_description_set_weight(font_desc1, PANGO_WEIGHT_SEMIBOLD);
+    pango_font_description_set_size(font_desc1, PANGO_SCALE * 15); // Set font size
+    pango_font_description_set_weight(font_desc1, PANGO_WEIGHT_MEDIUM);
+    pango_font_description_set_family(font_desc1, "Source Sans Pro"); // Set font family
     gtk_widget_override_font(titleLabel1, font_desc1);
     gtk_widget_set_halign(titleLabel1, GTK_ALIGN_CENTER);
-    gtk_box_pack_start(GTK_BOX(vvbox), titleLabel1, FALSE, FALSE, 10);
+    gtk_box_pack_start(GTK_BOX(vvbox), titleLabel1, FALSE, FALSE, 20);
 
     // Create the title label2
     GtkWidget *titleLabel2 = gtk_label_new("TP2 : GestMilitaireANP");
     PangoFontDescription *font_desc2 = pango_font_description_new();
     pango_font_description_set_size(font_desc2, PANGO_SCALE * 25); // Set font size
     pango_font_description_set_weight(font_desc2, PANGO_WEIGHT_BOLD);
-    pango_font_description_set_family(font_desc2, "Monospace"); // Set font family
+    pango_font_description_set_family(font_desc2,"Algerian"/*"Berlin Sans FB"*/); // Set font family
     gtk_widget_override_font(titleLabel2, font_desc2);
     gtk_widget_set_halign(titleLabel2, GTK_ALIGN_CENTER);
     gtk_box_pack_start(GTK_BOX(vvbox), titleLabel2, FALSE, FALSE, 75);
-    // Set the background color to white
-    GdkRGBA white;
-    gdk_rgba_parse(&white, "white");
-    gtk_widget_override_color(titleLabel2, GTK_STATE_FLAG_NORMAL, &white);
 
 //    GtkWidget *label = gtk_label_new("Réaliser par : Lyes & Yasser");
 //    // Create a PangoFontDescription for the desired font
@@ -1951,11 +2200,11 @@ int main(int argc, char *argv[]) {
     // Create the title label3
     GtkWidget *titleLabel3 = gtk_label_new("Copyright @ tout droits resérvés");
     PangoFontDescription *font_desc3 = pango_font_description_new();
-    pango_font_description_set_weight(font_desc3, PANGO_WEIGHT_THIN);
+    pango_font_description_set_weight(font_desc3, PANGO_WEIGHT_SEMILIGHT);
     gtk_widget_override_font(titleLabel3, font_desc3);
     gtk_widget_set_halign(titleLabel3, GTK_ALIGN_CENTER);
-    pango_font_description_set_size(font_desc3, PANGO_SCALE * 8); // Set font size
-    gtk_box_pack_start(GTK_BOX(vvbox), titleLabel3, FALSE, FALSE, 10);
+    pango_font_description_set_size(font_desc3, PANGO_SCALE * 9); // Set font size
+    gtk_box_pack_start(GTK_BOX(vvbox), titleLabel3, FALSE, FALSE, 15);
 
 // Pack the label box into the splash window
     gtk_container_add(GTK_CONTAINER(splash_window), vvbox);
@@ -1985,7 +2234,7 @@ int main(int argc, char *argv[]) {
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 // Create the first image button
-    GtkWidget *image1 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_01\\images\\exit.png");
+    GtkWidget *image1 = gtk_image_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\exit.png");
     gtk_widget_set_size_request(image1, 25, 25);
     GtkWidget *button_img1 = gtk_button_new();
     gtk_container_add(GTK_CONTAINER(button_img1), image1);
@@ -2002,7 +2251,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_halign(button_img1, GTK_ALIGN_START);
 
 // Create the second image button
-    GtkWidget *image2 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_01\\images\\image1.jpg");
+    GtkWidget *image2 = gtk_image_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\help.png");
     gtk_widget_set_size_request(image2, 25, 25);
     GtkWidget *button_img2 = gtk_button_new();
     gtk_container_add(GTK_CONTAINER(button_img2), image2);
@@ -2086,7 +2335,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_hide(window);
 
     // Start the splash timeout function
-    g_timeout_add_seconds(2, splash_timeout, NULL);
+    g_timeout_add_seconds(5, splash_timeout, NULL);
 
     // Show the splash window and run the main loop
     gtk_widget_show_all(splash_window);
