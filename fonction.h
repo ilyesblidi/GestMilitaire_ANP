@@ -33,7 +33,7 @@ void affichMilitaireIntervalle(int M1, int M2);
 
 //***************************************************************************
 //-----------------------les fonctions facultatifs----------------------------
-void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge);
+//void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge);
 void afficherMilitaireParGrade(char *grade);
 void creationFichRegionMilitaire(FILE *fichierSource, char *regionMilitaire, FILE *fichierDesination);
 void supprimerForceArme(char *forceArme);

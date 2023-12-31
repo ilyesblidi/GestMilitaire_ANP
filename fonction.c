@@ -13,20 +13,20 @@
 #include <stdbool.h>
 
 
-int calculateAge(date birthDate) {
-    currentDate.day = 1;
-    currentDate.month = 12;
-    currentDate.year = 2023;
-
-    int age = currentDate.year - birthDate.year;
-
-    if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-        age--;
-    }
-
-    return age;
-}
+//int calculateAge(date birthDate) {
+//    currentDate.day = 1;
+//    currentDate.month = 12;
+//    currentDate.year = 2023;
+//
+//    int age = currentDate.year - birthDate.year;
+//
+//    if (currentDate.month < birthDate.month ||
+//        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+//        age--;
+//    }
+//
+//    return age;
+//}
 
 int getIndiceMilitaire(char* region){
     int indice;
@@ -67,6 +67,7 @@ int getIndiceGrade(char* grade){
     }
     return indice;
 }
+
 int getGrade(char *grade){
     int indice;
     for (int i = 0; i < 5; ++i) {
@@ -603,6 +604,7 @@ void insertion(FILE *fichier, tenrg enrg, bool *existe , Index *index1, IndexM *
     nb = 0;
     bool trouv = false;
     rechDicoTableIndex(enrg.Matricule, &trouv, &k, *index1);
+    printf("\ntrouv = %d",trouv);
     *existe = trouv ;
     if (trouv == false) {
         Ienrg ienrg;
@@ -845,82 +847,82 @@ void affichMilitaireIntervalle(int M1, int M2) {
     Fermer(fichier);
 }
 
-void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge) {
-
-    int indice = getIndiceMilitaire(regionMilitaire);
-    int i, j, nb, age;
-    int s,sCopy;
-    FILE *fichier;
-    int beforI;
-    int k = 0; // Initialize 'k' to 0
-    Ouvrire(&fichier,"PERSONNEL-ANP_DZ.dat",'A');
-    nb = indexP.nb;
-    //POSITION OF THE FIRST RECORD OF THE REGION
-    while(indice != indexM.tab[k].indice){
-        k++;
-    }
-    //IF THE FILE IS NOT EMPTY
-    if (k != indexM.nb) {
-        _Bool trouv;
-        //FIND THE ADRESS OF THE FIRST RECORD OF THE REGION IN THE PRIMARY INDEX
-        rechDicoTableIndex(indexM.tab[k].cle, &trouv, &s, indexP);
-        if(trouv){
-            i = indexP.tab[s].adress.nbBloc;
-            j = indexP.tab[s].adress.nbEnrg;
-            beforI = i;
-            buffer = *alloc_bloc(fichier);
-            LireDir(fichier, i, &buffer);
-            //CHECK IF THE FIRST RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
-            age = calculateAge(buffer.tab[j].Date_Naissance);
-            if ((age >= minAge) && (age <= maxAge)) {
-                printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", 0, buffer.tab[j].Matricule, buffer.tab[j].Nom,
-                       buffer.tab[j].Prenom, buffer.tab[j].Matricule, buffer.tab[j].Date_Naissance.day,
-                       buffer.tab[j].Date_Naissance.month, buffer.tab[j].Date_Naissance.year,
-                       buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade, buffer.tab[j].Region_militaire,
-                       buffer.tab[j].Force_armee);
-            }
-        }
-        int z = 1;
-        k++;
-        // DO THE SAME FOR THE REST OF THE RECORDS IN THE REGION
-        while (k < nb) {
-            //IF THE REGION IS THE SAME AS THE  PARAMETER REGION
-            if(indexM.tab[k].indice == indice) {
-                int cle =0;
-                cle =indexM.tab[k].cle;
-                //FIN THE ADRESS OF THE RECORD IN THE PRIMARY INDEX
-
-                rechDicoTableIndex(cle, &trouv, &sCopy, indexP);
-                if(trouv){
-                    s = sCopy;
-                    j = indexP.tab[s].adress.nbEnrg;
-                    i = indexP.tab[s].adress.nbBloc;
-                    //WE READ A NEW BUFFER JUST IF THE RECORD ADDRESS IS IN A NEW BLOCK
-                    if (i != beforI) {
-                        buffer = *alloc_bloc(fichier); // Refresh the buffer for each record
-                        LireDir(fichier, i, &buffer);
-                    }
-                    //CHECK IF THE RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
-                    age = calculateAge(buffer.tab[j].Date_Naissance);
-                    if ((age >= minAge) && (age <= maxAge)) {
-                        printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", z, buffer.tab[j].Matricule,
-                               buffer.tab[j].Nom, buffer.tab[j].Prenom, buffer.tab[j].Matricule,
-                               buffer.tab[j].Date_Naissance.day, buffer.tab[j].Date_Naissance.month,
-                               buffer.tab[j].Date_Naissance.year, buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade,
-                               buffer.tab[j].Region_militaire, buffer.tab[j].Force_armee);
-                        z++;
-                    }
-                    //UPDATE THE BREVIOUS BLOCK
-                    beforI =i;
-                }
-            };
-            k++;
-        }
-    } else {
-        printf("il n'y a pas de militaire dans cette region \n");
-    }
-    Fermer(fichier);
-}
+//void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge) {
+//
+//    int indice = getIndiceMilitaire(regionMilitaire);
+//    int i, j, nb, age;
+//    int s,sCopy;
+//    FILE *fichier;
+//    int beforI;
+//    int k = 0; // Initialize 'k' to 0
+//    Ouvrire(&fichier,"PERSONNEL-ANP_DZ.dat",'A');
+//    nb = indexP.nb;
+//    //POSITION OF THE FIRST RECORD OF THE REGION
+//    while(indice != indexM.tab[k].indice){
+//        k++;
+//    }
+//    //IF THE FILE IS NOT EMPTY
+//    if (k != indexM.nb) {
+//        _Bool trouv;
+//        //FIND THE ADRESS OF THE FIRST RECORD OF THE REGION IN THE PRIMARY INDEX
+//        rechDicoTableIndex(indexM.tab[k].cle, &trouv, &s, indexP);
+//        if(trouv){
+//            i = indexP.tab[s].adress.nbBloc;
+//            j = indexP.tab[s].adress.nbEnrg;
+//            beforI = i;
+//            buffer = *alloc_bloc(fichier);
+//            LireDir(fichier, i, &buffer);
+//            //CHECK IF THE FIRST RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
+//            age = calculateAge(buffer.tab[j].Date_Naissance);
+//            if ((age >= minAge) && (age <= maxAge)) {
+//                printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", 0, buffer.tab[j].Matricule, buffer.tab[j].Nom,
+//                       buffer.tab[j].Prenom, buffer.tab[j].Matricule, buffer.tab[j].Date_Naissance.day,
+//                       buffer.tab[j].Date_Naissance.month, buffer.tab[j].Date_Naissance.year,
+//                       buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade, buffer.tab[j].Region_militaire,
+//                       buffer.tab[j].Force_armee);
+//            }
+//        }
+//        int z = 1;
+//        k++;
+//        // DO THE SAME FOR THE REST OF THE RECORDS IN THE REGION
+//        while (k < nb) {
+//            //IF THE REGION IS THE SAME AS THE  PARAMETER REGION
+//            if(indexM.tab[k].indice == indice) {
+//                int cle =0;
+//                cle =indexM.tab[k].cle;
+//                //FIN THE ADRESS OF THE RECORD IN THE PRIMARY INDEX
+//
+//                rechDicoTableIndex(cle, &trouv, &sCopy, indexP);
+//                if(trouv){
+//                    s = sCopy;
+//                    j = indexP.tab[s].adress.nbEnrg;
+//                    i = indexP.tab[s].adress.nbBloc;
+//                    //WE READ A NEW BUFFER JUST IF THE RECORD ADDRESS IS IN A NEW BLOCK
+//                    if (i != beforI) {
+//                        buffer = *alloc_bloc(fichier); // Refresh the buffer for each record
+//                        LireDir(fichier, i, &buffer);
+//                    }
+//                    //CHECK IF THE RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
+//                    age = calculateAge(buffer.tab[j].Date_Naissance);
+//                    if ((age >= minAge) && (age <= maxAge)) {
+//                        printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", z, buffer.tab[j].Matricule,
+//                               buffer.tab[j].Nom, buffer.tab[j].Prenom, buffer.tab[j].Matricule,
+//                               buffer.tab[j].Date_Naissance.day, buffer.tab[j].Date_Naissance.month,
+//                               buffer.tab[j].Date_Naissance.year, buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade,
+//                               buffer.tab[j].Region_militaire, buffer.tab[j].Force_armee);
+//                        z++;
+//                    }
+//                    //UPDATE THE BREVIOUS BLOCK
+//                    beforI =i;
+//                }
+//            };
+//            k++;
+//        }
+//    } else {
+//        printf("il n'y a pas de militaire dans cette region \n");
+//    }
+//    Fermer(fichier);
+//}
 
 
 void creationFichRegionMilitaire(FILE *fichierSource, char *regionMilitaire, FILE *fichierDesination) {
@@ -1051,7 +1053,7 @@ void supprimerForceArme( char *forceArme) {
         beforI = i;
         buf = *alloc_bloc(fichierSource);
         LireDir(fichierSource, i, &buf);
-        SuppersionEnrg(fichierSource,&buf,i,j,&indexP);
+        SuppersionEnrg(fichierSource,&buf,i,j,&indexP); ///Kayna exception hna
         suppersionIndex(s, &indexP);
         k++;
         // DO THE SAME FOR THE REST OF THE RECORDS IN THE FORCE ARME
