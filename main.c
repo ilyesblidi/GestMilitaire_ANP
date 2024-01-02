@@ -2060,8 +2060,42 @@ void on_image_clicked(GtkWidget *widget, gpointer data) {
 // Callback function for button click event
 void on_button_clicked_popover(GtkWidget *button, gpointer user_data) {
     // Cast user_data back to GtkPopover and show it
-    GtkPopover *popover = GTK_POPOVER(user_data);
-    gtk_popover_popup(popover);
+    GtkWidget *image = user_data;
+
+    // Create a label with markup
+    GtkWidget *label = gtk_label_new(NULL);
+    //gtk_widget_set_margin_start(label,25);
+    gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(label, GTK_ALIGN_CENTER);
+
+    const gchar *label_text = "<b>                    GestMilitaireANP</b>\n réalisé par "
+                              "<span foreground='green'>Yasser Korzane et Lyes Blidi</span>\n"
+                              "sous la supervision du <b>M. KERMI ADEL</b>\n\n"
+                              "          Une application de gestion du\n"
+                              "personnel militaire de l'Armée Nationale\n"
+                              "                Populaire (ANP).\n\n"
+                              "  Le projet vise à créer le fichier binaire\n"
+                              "\"PERSONNEL-ANP_DZ.dat\" en utilisant \n"
+                              "la méthode \"TObarreF\", avec l'intégration \n"
+                              "d'un index dense en MC et d'un fichier \n"
+                              "index TOF pour une gestion optimale\n"
+                              "                   des données.";
+
+    gtk_label_set_markup(GTK_LABEL(label), label_text);
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE); // Enable line wrap
+
+    // Create a popover
+    GtkWidget *popover = gtk_popover_new(image);
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    PangoFontDescription *font_desc_popover = pango_font_description_from_string("Source Sans Pro 14"); //* Berlin Sans FB 15 *//
+    gtk_widget_override_font(label, font_desc_popover);
+    gtk_container_set_border_width(GTK_CONTAINER(popover),19);
+    gtk_container_add(GTK_CONTAINER(popover), label);
+
+    pango_font_description_free(font_desc_popover);
+
+    gtk_popover_popup((GtkPopover *) popover);
+    gtk_widget_show_all(popover);
 }
 
 
@@ -2170,27 +2204,8 @@ int main(int argc, char *argv[]) {
     gtk_box_pack_end(GTK_BOX(hbox), button_img2, FALSE, FALSE, 5);
     gtk_widget_set_halign(button_img2, GTK_ALIGN_END);
 
-    // Create a label for the popover
-    //GtkWidget *label = gtk_label_new("This is a popover content!");
-
-    // Create a popover
-    GtkWidget *popover = gtk_popover_new(button_img2);
-    //gtk_container_add(GTK_CONTAINER(popover), label);
-
-    // Create a vertical box for the popover content
-    GtkWidget *vbox_description = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-    gtk_container_add(GTK_CONTAINER(popover), vbox_description);
-
-    // Add labels to the vertical box
-    GtkWidget *label1 = gtk_label_new("Label 1");
-
-    gtk_box_pack_start(GTK_BOX(vbox_description), label1, FALSE, FALSE, 5);
-
-    // Set a minimum size for the popover
-    gtk_widget_set_size_request(popover, 200, -1);
-
     // Connect the callback function to the button click event
-    g_signal_connect(button_img2, "clicked", G_CALLBACK(on_button_clicked_popover), popover);
+    g_signal_connect(button_img2, "clicked", G_CALLBACK(on_button_clicked_popover), button_img2);
 
 // Create the title label
     GtkWidget *titleLabel = gtk_label_new("BIENVENUE DANS NOTRE PROGRAMME");
