@@ -56,6 +56,57 @@ typedef struct {
     FILE * F ;
 } UserData;
 
+void on_button_clicked(GtkWidget *button, gpointer user_data) {
+    gtk_widget_destroy(GTK_WIDGET(user_data));
+}
+
+void show_message_window(const gchar *message) {
+    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+    // Set RGBA visual for transparency
+    GdkScreen *screen = gtk_widget_get_screen(window);
+    GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
+    gtk_widget_set_visual(window, visual);
+
+    // Make the window transparent
+    gtk_widget_set_app_paintable(window, TRUE);
+
+    gtk_window_set_decorated(GTK_WINDOW(window), FALSE); // Remove title bar
+    gtk_widget_set_size_request(window, 300, 100); // Set window size
+
+    // Create a vertical box to hold the label and button
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+
+    // Create a label with the message
+    GtkWidget *label = gtk_label_new(message);
+    PangoFontDescription *font_desc_cout = pango_font_description_from_string("Berlin Sans FB 16"); //* Berlin Sans FB 15 *//
+    gtk_widget_override_font(label, font_desc_cout);
+
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE); // Enable line wrapping
+
+    GdkRGBA white;
+    gdk_rgba_parse(&white, "white");
+    gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &white);
+
+    gtk_box_pack_start(GTK_BOX(vbox), label, TRUE, TRUE, 5);
+    pango_font_description_free(font_desc_cout);
+
+    // Create a button
+    GtkWidget *button = gtk_button_new_with_label("OK");
+    g_signal_connect(button, "clicked", G_CALLBACK(on_button_clicked), window); // Connect the button click signal
+    gtk_box_pack_end(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+
+    // Show all widgets
+    gtk_widget_show_all(window);
+
+    // Position the window at the bottom left after showing
+    screen = gtk_widget_get_screen(window);
+    gint screen_width = gdk_screen_get_width(screen);
+    gint screen_height = gdk_screen_get_height(screen);
+    gtk_window_move(GTK_WINDOW(window), 50, screen_height - 500); // Adjust as needed
+}
+
 // Callback function for "Valider" button click
 void valider_button_clicked(GtkWidget *widget, gpointer user_data) {
 
@@ -65,23 +116,17 @@ void valider_button_clicked(GtkWidget *widget, gpointer user_data) {
     // Get the entered number from the entry buffer
     const char *numberStr = gtk_entry_buffer_get_text(data->entryBuffer);
 
-    // Print the entered number
-    g_print("Entered Number: %s\n", numberStr);
-
     int number = atoi(numberStr);
 
-    /** chargement_initiale(f,number); **/
     Lecture = 0;
     Ecriture = 0;
 
     chargementInitial(data->fichier, number);
 
-    printf("le cout de chargement initial est %d lecture et %d ecriture\n", Lecture, Ecriture);
-    printfFichier("PERSONNEL-ANP_DZ.dat");
-    printf("test\n");
-    /***********************************/
-
-    // Add your logic here using mainWindow and entryBuffer as needed
+    // Create a message window with the printf message
+    gchar message[100];
+    g_snprintf(message, sizeof(message), " Le cout de chargement initial est \n         %d lecture et %d écriture ", Lecture, Ecriture);
+    show_message_window(message);
 
     GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
                                                       GTK_DIALOG_MODAL,
@@ -93,14 +138,11 @@ void valider_button_clicked(GtkWidget *widget, gpointer user_data) {
 
     Fermer(data->fichier);
     Sauvegarde_IndexM(data->fich, indexM);
-            Sauvegarde_IndexM(data->Fi, indexF);
-            Sauvegarde_IndexM(data->F, indexG);
-            Fermer(data->fich);
-            Fermer(data->Fi);
-            Fermer(data->F);
-//            printGradeIndex("GRADE_INDEX.idx");
-//            printMilitaireIndex("MILITAIRE_INDEX.idx");
-//            printForceIndex("FORCE_ARME_INDEX.idx");
+    Sauvegarde_IndexM(data->Fi, indexF);
+    Sauvegarde_IndexM(data->F, indexG);
+    Fermer(data->fich);
+    Fermer(data->Fi);
+    Fermer(data->F);
     // Clean up the allocated user data
     g_free(data);
 }
@@ -111,10 +153,9 @@ void create_button1_content(GtkWidget *mainWindow, const char *buttonLabel) {
     FILE *fich, *Fi, *F, *fichier;
 
     Ouvrire(&fichier, "PERSONNEL-ANP_DZ.dat", 'N');
-            Ouvrire(&fich, "MILITAIRE_INDEX.idx", 'N');
-            Ouvrire(&Fi, "FORCE_ARME_INDEX.idx", 'N');
-            Ouvrire(&F, "GRADE_INDEX.idx", 'N');
-
+    Ouvrire(&fich, "MILITAIRE_INDEX.idx", 'N');
+    Ouvrire(&Fi, "FORCE_ARME_INDEX.idx", 'N');
+    Ouvrire(&F, "GRADE_INDEX.idx", 'N');
 
     // Create a new window for Button 1 content
     GtkWidget *buttonWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -165,7 +206,7 @@ void create_button1_content(GtkWidget *mainWindow, const char *buttonLabel) {
 // Function to create content for Button 2
 void create_button2_content(GtkWidget *mainWindow, const char *buttonLabel) {
 
-            Sauvegarde_Index(indexP);
+    Sauvegarde_Index(indexP);
 
     // Show a warning dialog when Button 5 is clicked
     GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(mainWindow),
@@ -173,7 +214,6 @@ void create_button2_content(GtkWidget *mainWindow, const char *buttonLabel) {
                                                       GTK_MESSAGE_WARNING,
                                                       GTK_BUTTONS_OK,
                                                       "Sauvegarde de l'index fait avec succès");
-
     gtk_dialog_run(GTK_DIALOG(warningDialog));
     gtk_widget_destroy(warningDialog);
 }
@@ -181,20 +221,19 @@ void create_button2_content(GtkWidget *mainWindow, const char *buttonLabel) {
 // Function to create content for Button 3
 void create_button3_content(GtkWidget *mainWindow, const char *buttonLabel) {
 
-        Chargement_index(&indexP);
-        affichIndexPrimaire(indexP);
+    Chargement_index(&indexP);
 
-        // Show a warning dialog
-        GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(mainWindow),
-                                                          GTK_DIALOG_MODAL,
-                                                          GTK_MESSAGE_WARNING,
-                                                          GTK_BUTTONS_OK,
-                                                          "Chargement de l'index fait avec succès");
+    // Show a warning dialog
+    GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(mainWindow),
+                                                      GTK_DIALOG_MODAL,
+                                                      GTK_MESSAGE_WARNING,
+                                                      GTK_BUTTONS_OK,
+                                                      "Chargement de l'index fait avec succès");
 
-        gtk_dialog_run(GTK_DIALOG(warningDialog));
-        gtk_widget_destroy(warningDialog);
+    gtk_dialog_run(GTK_DIALOG(warningDialog));
+    gtk_widget_destroy(warningDialog);
 
-    }
+}
 
 // Define a structure to hold both mainWindow and entryBuffer
 typedef struct {
@@ -251,18 +290,15 @@ void search_button_clicked(GtkWidget *widget, gpointer userdata) {
     Ouvrire(&fich, "MILITAIRE_INDEX.idx", 'A');
     Chargement_index(&indexP);
     Chargement_indexM(fich, &indexM);
-            Lecture = 0;
-            Ecriture = 0;
+    Lecture = 0;
+    Ecriture = 0;
 
     int i,j;
     bool trouv;
     Buffer buf_rech = *alloc_bloc(fichier);
 
     Rech_Militaires(enteredNumber , &trouv , &i , &j , fichier);
-    printf("\n resultat de rech : i=%d ; j=%d",i,j);
-
     LireDir(fichier,i,&buf_rech);
-    //printf("\nLirDir = %d",LireDir(fichier,i,&buf_rech));
 
     if(!trouv){
         GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
@@ -273,21 +309,17 @@ void search_button_clicked(GtkWidget *widget, gpointer userdata) {
 
         gtk_dialog_run(GTK_DIALOG(warningDialog));
         gtk_widget_destroy(warningDialog);
-
     } else {
 
         resultWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
         gtk_window_set_title(GTK_WINDOW(resultWindow), "Result Window");
-        gtk_window_set_default_size(GTK_WINDOW(resultWindow), 500, 400);
+        gtk_window_set_default_size(GTK_WINDOW(resultWindow), 500, 600);
         gtk_window_set_position(GTK_WINDOW(resultWindow), GTK_WIN_POS_CENTER);
 
         // Set the background color of the result window
         GdkRGBA backgroundColor;
         gdk_rgba_parse(&backgroundColor, "#ECECEC");  // Replace "your_color_here" with your desired color
         gtk_widget_override_background_color(resultWindow, GTK_STATE_FLAG_NORMAL, &backgroundColor);
-
-        // Clear previous content of the window
-        //gtk_container_foreach(GTK_CONTAINER(resultWindow), (GtkCallback)gtk_widget_destroy, NULL);
 
 /******************************** récuperer les 9 champs de enreg *******************************/
         char labelTextMatricule[7] ;
@@ -317,12 +349,8 @@ void search_button_clicked(GtkWidget *widget, gpointer userdata) {
         strcpy(labelTextForce,buf_rech.tab[j].Force_armee);
         char labelTextGrpS[4];
         strcpy(labelTextGrpS,buf_rech.tab[j].Groupe_sanguin);
-        printf("\n(%d) : buf_rech.tab[j].Region : %s ",buf_rech.tab[j].Matricule,buf_rech.tab[j].Region_militaire);
 
 /*********************************************************************************************/
-
-        /// strcat(Dest,Source) : Concatener les 2 chaines et mettre le resultat dans Dest
-
         // Create a grid to center the list box
         GtkWidget *resultGrid = gtk_grid_new();
         gtk_container_add(GTK_CONTAINER(resultWindow), resultGrid);
@@ -355,7 +383,10 @@ void search_button_clicked(GtkWidget *widget, gpointer userdata) {
         gtk_widget_show_all(resultWindow);
     }
 
-    printf("le cout de recherche par matricule est %d lecture et %d ecriture\n", Lecture, Ecriture);
+    gchar message[100];
+    g_snprintf(message, sizeof(message), " Le cout de recherche par matricule est \n            %d lecture et %d écriture ", Lecture, Ecriture);
+    show_message_window(message);
+
     Fermer(fichier);
     Fermer(fich);
 }
@@ -385,7 +416,6 @@ void create_button4_content(GtkWidget *mainWindow, const char *buttonLabel) {
     // Connect the signal handler to the "key-press-event" signal
     g_signal_connect( searchEntry , "key-press-event", G_CALLBACK(on_entry_input), NULL);
 
-
     gtk_box_pack_start(GTK_BOX(buttonBox), searchEntry, FALSE, FALSE, 0);
 
     // Create a "Valider" button
@@ -404,7 +434,6 @@ void create_button4_content(GtkWidget *mainWindow, const char *buttonLabel) {
 
     // Show all widgets in the new window
     gtk_widget_show_all(buttonWindow);
-
 }
 
 // Define a structure to hold the user data for Button 5
@@ -446,18 +475,14 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
     selectedDate.year = year;
     selectedDate.month = month + 1;  // Adjust for zero-based month in GtkCalendar
     selectedDate.day = day;
-    //printf("\nday : %d ; month : %d ; year : %d ",selectedDate.day,selectedDate.month,selectedDate.year);
 
     /** ICI ON AJOUTE : Inser_enreg(enreg,Fd); **/
     tenrg e ;
     e.Matricule = numero_matricule;
     strcpy(e.Nom , nom);
     strcpy(e.Prenom , prenom);
-    printf("\n nom : %s ; prenom : %s",e.Nom , e.Prenom);
     strcpy(e.Wilaya_Naissance , wilaya);
-    printf("\n Wilaya : %s ",e.Wilaya_Naissance);
     strcpy(e.Region_militaire , region);
-    printf("\n Region : %s ",e.Region_militaire);
     strcpy(e.Groupe_sanguin , grp_sanguaine);
     strcpy(e.Grade , grade);
     strcpy(e.Force_armee , force);
@@ -474,13 +499,11 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
     Lecture = 0;
     Ecriture = 0;
 
-            //insertion(fichier, e, &trouve, &indexP, &indexM, &indexF, &indexG);//
     /************************************************************************************/
     Menrg menrg1,menrg2;
     int k, N, nb;
     bool trouv = false;
     rechDicoTableIndex(e.Matricule, &trouv, &k, indexP);
-    printf("\ntrouv = %d",trouv);
     if (trouv == false) {
         Ienrg ienrg;
         Menrg menrg;
@@ -523,9 +546,6 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
         insertionIndexS(menrg, &indexM);
         insertionIndexS(menrg1,&indexF);
         insertionIndexS(menrg2,&indexG);
-        printf("\ninsertion avec succes.");
-    } else {
-        printf("\nl'enregistrement que vous voulez inserer existe deja.\n");
     }
     /************************************************************************************/
 
@@ -538,6 +558,10 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
         gtk_dialog_run(GTK_DIALOG(warningDialog));
         gtk_widget_destroy(warningDialog);
 
+        gchar message[100];
+        g_snprintf(message, sizeof(message), " Le cout d'insertion est \n     %d lecture et %d écriture ", Lecture, Ecriture);
+        show_message_window(message);
+
     } else {
         GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
                                                           GTK_DIALOG_MODAL,
@@ -546,23 +570,16 @@ void valider_button5_clicked(GtkWidget *widget, gpointer user_data) {
                                                           "l'enregistrement que vous voulez inserer existe deja");
         gtk_dialog_run(GTK_DIALOG(warningDialog));
         gtk_widget_destroy(warningDialog);
-
     }
 
-    printf("le cout de insertion est %d lecture et %d ecriture\n", Lecture, Ecriture);
-    //affichIndexPrimaire(indexP);
-    //affichIndexMilitaire(indexM);
-    printf("le matricule %d\n", e.Matricule);
     Sauvegarde_IndexM(fich, indexM);
     Sauvegarde_IndexM(Fi, indexF);
     Sauvegarde_IndexM(F, indexG);
     Sauvegarde_Index(indexP);
-    printfFichier("PERSONNEL-ANP_DZ.dat");
     Fermer(fichier);
     Fermer(fich);
     Fermer(Fi);
     Fermer(F);
-
     // Clean up the allocated user data
     g_free(data);
 }
@@ -572,33 +589,32 @@ void create_button5_content(GtkWidget *mainWindow, const char *buttonLabel) {
 // Create a new window for Button 5 content
     GtkWidget *buttonWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(buttonWindow), buttonLabel);
-    gtk_window_set_default_size(GTK_WINDOW(buttonWindow), 700, 700);
+    gtk_window_set_default_size(GTK_WINDOW(buttonWindow), 650, 700);
     gtk_window_set_position(GTK_WINDOW(buttonWindow), GTK_WIN_POS_CENTER);
 
     // Create a box to hold the content in the new window
     GtkWidget *buttonBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+    gtk_widget_set_halign(buttonBox,GTK_ALIGN_CENTER);
     gtk_widget_set_size_request(buttonBox, 300, -1); // Set width to 300
+    PangoFontDescription *font_desc_Box = pango_font_description_from_string("Algerian 12"); //* Berlin Sans FB 15 *//
+    gtk_widget_override_font(buttonBox, font_desc_Box);
+
     gtk_container_add(GTK_CONTAINER(buttonWindow), buttonBox);
+    pango_font_description_free(font_desc_Box);
 
     // Create a label for the information
     GtkWidget *infoLabel = gtk_label_new("Entrer les informations de militaire");
-    PangoFontDescription *font_desc_label = pango_font_description_new();
-    pango_font_description_set_weight(font_desc_label, PANGO_WEIGHT_BOLD);
-    gtk_widget_override_font(infoLabel, font_desc_label);
-
-    // Create a PangoFontDescription for Algerian font with size 12
-    PangoFontDescription *fontDesc = pango_font_description_from_string("Algerian 12");
-
-// Apply the font description to a GTK widget (e.g., a label)
-    gtk_widget_override_font(infoLabel, fontDesc);
-
-// Don't forget to free the font description when you're done
-    pango_font_description_free(fontDesc);
+    gtk_widget_set_halign(infoLabel,GTK_ALIGN_CENTER);
+    PangoFontDescription *font_desc_T = pango_font_description_from_string("Berlin Sans FB 17"); //* Berlin Sans FB 15 *//
+    gtk_widget_override_font(infoLabel, font_desc_T);
 
     gtk_box_pack_start(GTK_BOX(buttonBox), infoLabel, FALSE, FALSE, 15);
+    // Don't forget to free the font description when you're done
+    pango_font_description_free(font_desc_T);
 
     // Create an HBox for the first entry buffer (Matricule)
     GtkWidget *hboxMatricule = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
+    gtk_widget_set_halign(hboxMatricule,GTK_ALIGN_CENTER);
 
     // Create a label for Matricule
     GtkWidget *labelMatricule = gtk_label_new("Matricule :");
@@ -625,7 +641,7 @@ void create_button5_content(GtkWidget *mainWindow, const char *buttonLabel) {
     gtk_box_pack_start(GTK_BOX(buttonBox), hboxMatricule, FALSE, FALSE, 5);
 
     // Create an HBox for the second entry buffer (Nom and Prenom)
-    GtkWidget *hboxNomPrenom = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
+    GtkWidget *hboxNomPrenom = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 25);
 
     // Create a label for Nom
     GtkWidget *labelNom = gtk_label_new("Nom :");
@@ -636,7 +652,7 @@ void create_button5_content(GtkWidget *mainWindow, const char *buttonLabel) {
     gtk_entry_buffer_set_max_length(entryBufferNom, 30);  // Set maximum length to 30 characters
     GtkWidget *entryNom = gtk_entry_new_with_buffer(entryBufferNom);
     gtk_widget_set_size_request(entryNom, 145, -1); // Set width to 145
-    gtk_box_pack_start(GTK_BOX(hboxNomPrenom), entryNom, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(hboxNomPrenom), entryNom, FALSE, FALSE, 0);
 
     // Create a label for Prenom
     GtkWidget *labelPrenom = gtk_label_new("Prenom :");
@@ -647,7 +663,7 @@ void create_button5_content(GtkWidget *mainWindow, const char *buttonLabel) {
     gtk_entry_buffer_set_max_length(entryBufferPrenom, 30);  // Set maximum length to 30 characters
     GtkWidget *entryPrenom = gtk_entry_new_with_buffer(entryBufferPrenom);
     gtk_widget_set_size_request(entryPrenom, 145, -1); // Set width to 145
-    gtk_box_pack_start(GTK_BOX(hboxNomPrenom), entryPrenom, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(hboxNomPrenom), entryPrenom, FALSE, FALSE, 0);
 
     gtk_box_pack_start(GTK_BOX(buttonBox), hboxNomPrenom, FALSE, FALSE, 5);
 
@@ -665,13 +681,11 @@ void create_button5_content(GtkWidget *mainWindow, const char *buttonLabel) {
 
     gtk_box_pack_start(GTK_BOX(buttonBox), hboxDatePicker, FALSE, FALSE, 5);
 
-    //GDate dateselected = gtk_calendar_get_date(GTK_CALENDAR(datePicker)) ;
-
     // Create an HBox for each combo box
     const char *options[][59] = {
             {"Wilaya de naissance :", "Adrar", "Chlef", "Laghouat", "Oum_El_Bouaghi", "Batna", "Bejaïa", "Biskra",
-                    "Bechar", "Blida", "Bouira", "Tamanrasset", "Tebessa", "Tlemcen", "Tiaret",
-                    "Tizi_Ouzou", "Alger", "Djelfa", "Jijel", "Setif", "Saïda", "Skikda", "Sidi_Bel_Abbès",
+                                                                            "Bechar", "Blida", "Bouira", "Tamanrasset", "Tebessa", "Tlemcen", "Tiaret",
+                                                                                                                                                                       "Tizi_Ouzou", "Alger", "Djelfa", "Jijel", "Setif", "Saïda", "Skikda", "Sidi_Bel_Abbès",
                     "Annaba", "Guelma", "Constantine", "Medea", "Mostaganem", "M'Sila", "Mascara", "Ouargla",
                     "Oran", "El_Bayadh", "Illizi", "Bordj_Bou_Arreridj", "Boumerdès", "El_Tarf", "Tindouf",
                     "Tissemsilt", "El_Oued", "Khenchela", "Souk_Ahras", "Tipaza", "Mila", "Aïn_Defla", "Naâma",
@@ -679,14 +693,14 @@ void create_button5_content(GtkWidget *mainWindow, const char *buttonLabel) {
                     "Bordj Badji Mokhtar", "Béni Abbès", "Timimoun", "Touggourt", "Djanet", "In Salah", "In Guezzam"},
             {"Groupe Sanguin :", "O+", "A+", "B+", "O-", "A-", "AB+", "B-", "AB-"},
             {"Grade :", "General d'Armee", "General de corps d’armee", "General-Major",
-                    "General", "Colonel", "Lieutenant-colonel", "Commandant",
-                    "Capitaine", "Lieutenant", "Sous-lieutenant", "Aspirant",
-                    "Adjudant-Major", "Adjudant-Chef", "Adjudant", "Sergent-Chef",
-                    "Sergent", "Caporal-Chef", "Caporal", "Djoundi"},
+                                                                    "General", "Colonel", "Lieutenant-colonel", "Commandant",
+                                                                            "Capitaine", "Lieutenant", "Sous-lieutenant", "Aspirant",
+                                                                                                                        "Adjudant-Major", "Adjudant-Chef", "Adjudant", "Sergent-Chef",
+                                                                                                                                                                                     "Sergent", "Caporal-Chef", "Caporal", "Djoundi"},
             {"Force Armée :", "Armee_de_terre", "Armee_de_l’air", "Marine_nationale",
-                    "Defense_aerienne_du_territoire", "Gendarmerie_nationale",
-                    "Garde_republicaine", "Departement_du_renseignement_et_de_la_securite",
-                    "Sante_militaire"},
+                                                                    "Defense_aerienne_du_territoire", "Gendarmerie_nationale",
+                                                                                               "Garde_republicaine", "Departement_du_renseignement_et_de_la_securite",
+                                                                            "Sante_militaire"},
             {"Région militaire :", "1RM-Blida", "2RM-Oran", "3RM-Béchar", "4RM-Ouargla", "5RM-Constantine", "6RM-Tamanrasset"}
     };
 
@@ -760,9 +774,7 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     const char *number = gtk_entry_buffer_get_text(data->entryBuffer);
     int cle = atoi(number) ;
 
-    /** supprimer_enreg(fichier: Fd , Matricule: number); **/
     FILE *fichier ,*fich ,*Fi ,*F ;
-
     Chargement_index(&indexP);
     Ouvrire(&fichier,"PERSONNEL-ANP_DZ.dat",'A');
     Ouvrire(&Fi,"MILITAIRE_INDEX.idx",'A');
@@ -771,12 +783,9 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     Chargement_indexM(Fi,&indexM);
     Chargement_indexM(fich,&indexF);
     Chargement_indexM(F,&indexG);
-    printf("***************avant*********************\n");
-    printfFichier("PERSONNEL-ANP_DZ.dat");
     Lecture =0;
     Ecriture = 0;
 
-    //suppersionEnrg(fichier,cle,&trouve,&indexP); ///Kayna exception hna
     /***********************************************************************/
     bool trouv = false,trouv1 = false;
     int k =0,k1 = 0;
@@ -790,7 +799,6 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     //nb : le nombre des enrg dans le dernier bloque
     //k : l'indice d'enrg qu'on va supprimer
     rechDicoTableIndex(cle, &trouv, &k, indexP);
-    //*existe = trouv ;
     if (trouv) {
         N = entete(fichier, 1);
         i = indexP.tab[k].adress.nbBloc;
@@ -830,13 +838,8 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
                 aff_entete(fichier, 2, 1024);
             }
         }
-        affichIndexPrimaire(indexP);
         suppersionIndex(k, &indexP);
-        affichIndexPrimaire(indexP);
 
-        affichIndexMilitaire(indexM);
-    }else{
-        printf("l'enregistrement que vous voulez supprimer n'existe pas");
     }
     /**********************************************************************/
     if(trouv == true){
@@ -847,7 +850,6 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
                                                           "Suppression d'enregistrement fait avec succès");
         gtk_dialog_run(GTK_DIALOG(warningDialog));
         gtk_widget_destroy(warningDialog);
-
     } else {
         GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
                                                           GTK_DIALOG_MODAL,
@@ -858,7 +860,10 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
         gtk_widget_destroy(warningDialog);
     }
 
-    printf("le cout de suppression est %d lecture et %d ecriture\n",Lecture,Ecriture);
+    gchar message[100];
+    g_snprintf(message, sizeof(message), " Le cout de suppression est \n       %d lecture et %d écriture ", Lecture, Ecriture);
+    show_message_window(message);
+
     Sauvegarde_Index(indexP);
     Sauvegarde_IndexM(Fi,indexM);
     Sauvegarde_IndexM(fich,indexF);
@@ -867,17 +872,6 @@ void supprimer_button_clicked(GtkWidget *widget, gpointer user_data) {
     Fermer(Fi);
     Fermer(fich);
     Fermer(F);
-    printf("***************apres*********************\n");
-    printfFichier("PERSONNEL-ANP_DZ.dat");
-    printf("***************apres*********************\n");
-    printIndexPrimaire("MATRICULE_INDEX.idx");
-    printf("******************************************\n");
-    printMilitaireIndex("MILITAIRE_INDEX.idx");
-    printf("***************apres*********************\n");
-    printForceIndex("FORCE_ARME_INDEX.idx");
-    printf("***************apres*********************\n");
-    printGradeIndex("GRADE_INDEX.idx");
-
     // Clean up the allocated user data
     g_free(data);
 }
@@ -943,17 +937,8 @@ void modifier_button_clicked(GtkWidget *widget, gpointer user_data) {
     const char *number = gtk_entry_buffer_get_text(data->entryBuffer);
     int matricule = atoi(number) ;
     const char *region = gtk_combo_box_text_get_active_text(data->regionComboBox);
-
-    // Print the entered number
-    g_print("Entered Number: %d\n", matricule);
-    g_print("Chosed option: %s\n", region);
-
-    /** Modifier_R(fichier: Fd , Matricule: number , Region: region ); **/
     bool existe ;
-
     Chargement_index(&indexP);
-    printfFichier("PERSONNEL-ANP_DZ.dat");
-    printf("******************************************\n");
     Lecture = 0;
     Ecriture = 0;
     modifRegionMelitaire(matricule , region , &existe);
@@ -976,9 +961,9 @@ void modifier_button_clicked(GtkWidget *widget, gpointer user_data) {
         gtk_widget_destroy(warningDialog);
     }
 
-    printf("le cout de modification est %d lecture et %d ecriture\n", Lecture, Ecriture);
-    printfFichier("PERSONNEL-ANP_DZ.dat");
-    printf("******************************************\n");
+    gchar message[100];
+    g_snprintf(message, sizeof(message), " Le cout de modification est \n          %d lecture et %d écriture ", Lecture, Ecriture);
+    show_message_window(message);
 
     // Clean up the allocated user data
     g_free(data);
@@ -1081,7 +1066,6 @@ void append_data_to_tree_store(GtkTreeStore *treestore, struct Tenrg *data) {
     );
 
     gtk_tree_store_set(treestore, &iter, COLUMN_TEXT, text, -1);
-
     g_free(text);
 }
 
@@ -1142,45 +1126,42 @@ void searchM1M2_button_clicked(GtkWidget *widget, gpointer userdata){
     Buffer *bufer = alloc_bloc(fichier);
     LireDir(fichier, indexP.tab[i].adress.nbBloc, bufer);
 
-        GtkWidget *resultWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-        gtk_window_set_title(GTK_WINDOW(resultWindow), "Result Window");
-        gtk_window_set_default_size(GTK_WINDOW(resultWindow), 750, 650);
-        gtk_window_set_position(GTK_WINDOW(resultWindow), GTK_WIN_POS_CENTER);
+    GtkWidget *resultWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(resultWindow), "Result Window");
+    gtk_window_set_default_size(GTK_WINDOW(resultWindow), 750, 650);
+    gtk_window_set_position(GTK_WINDOW(resultWindow), GTK_WIN_POS_CENTER);
 
-        // Create a ListBox to display the results
-        GtkWidget *listbox = gtk_list_box_new();
-        gtk_widget_set_name(listbox, "myListBox");
+    // Create a ListBox to display the results
+    GtkWidget *listbox = gtk_list_box_new();
+    gtk_widget_set_name(listbox, "myListBox");
 
-        // Add each row to the ListBox
-        for (i = inf ; i <= sup ; i++) {
-            if (indexP.tab[i].adress.nbBloc != indexP.tab[i - 1].adress.nbBloc) {
-                free(bufer);
-                bufer = alloc_bloc(fichier);
-                LireDir(fichier, indexP.tab[i].adress.nbBloc, bufer);
-            }
-
-            j = indexP.tab[i].adress.nbEnrg; //j : l'indice de l'enregistrement
-            // Recupere l'enrg qui a M1
-            e = bufer->tab[j] ;
-            printf("\n(pos_f_lindex=%d ; pos_f_Fd=%d) : '%d'",i,j,e.Matricule);
-
-            GtkWidget *row = create_tree_view(&e);
-            gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
+    // Add each row to the ListBox
+    for (i = inf ; i <= sup ; i++) {
+        if (indexP.tab[i].adress.nbBloc != indexP.tab[i - 1].adress.nbBloc) {
+            free(bufer);
+            bufer = alloc_bloc(fichier);
+            LireDir(fichier, indexP.tab[i].adress.nbBloc, bufer);
         }
 
+        j = indexP.tab[i].adress.nbEnrg; //j : l'indice de l'enregistrement
+        // Recupere l'enrg qui a M1
+        e = bufer->tab[j] ;
+        GtkWidget *row = create_tree_view(&e);
+        gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
+    }
 // Create a scrolled window
-        GtkWidget *scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
+    GtkWidget *scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
 
 // Set the policy for the horizontal and vertical scrollbars
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
 // Add the list box to the scrolled window
-        gtk_container_add(GTK_CONTAINER(scrolledWindow), listbox);
+    gtk_container_add(GTK_CONTAINER(scrolledWindow), listbox);
 
 // Set the scrolled window as the content of the main window
-        gtk_container_add(GTK_CONTAINER(resultWindow), scrolledWindow);
-        // Show all widgets in the new window
-        gtk_widget_show_all(resultWindow);
+    gtk_container_add(GTK_CONTAINER(resultWindow), scrolledWindow);
+    // Show all widgets in the new window
+    gtk_widget_show_all(resultWindow);
 
     free(bufer);
     Fermer(fichier);
@@ -1245,7 +1226,6 @@ void create_button8_content(GtkWidget *mainWindow, const char *buttonLabel) {
 
     // Show all widgets in the new window
     gtk_widget_show_all(buttonWindow);
-
 }
 
 const gchar *option_labels[] = {"Supprimer les enregistrements d'une force armée",
@@ -1266,13 +1246,10 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
 
     // Retrieve the entered region from the entry buffer
     const char *selected_option = gtk_combo_box_text_get_active_text(data->comboBox);
-    g_print("\nEntered Force: %s", selected_option);
 
-        Lecture = 0;
-        Ecriture = 0;
-        //supprimerForceArme(selected_option); ///ne fonctionne pas
-    printForceIndex("FORCE_ARME_INDEX.idx");
-        /**********************************************************************/
+    Lecture = 0;
+    Ecriture = 0;
+    /**********************************************************************/
     int indice = getIndiceForce(selected_option);
     FILE *F;
     FILE *fich;
@@ -1288,6 +1265,9 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
     int beforI;
     int k = 0;
     nb = indexP.nb;
+
+    //affichIndexPrimaire(indexP);
+
     //POSITION OF THE FIRST RECORD OF THE FORCE ARME
     while(indice != indexF.tab[k].indice){
         k++;
@@ -1345,11 +1325,7 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
             }
         }
         suppersionIndex(k1, &indexP);
-//        suppressionIndexM(buf.tab[j].Matricule, &indexM);
-//        suppressionIndexM(buf.tab[j].Matricule,&indexG);
-//        suppressionIndexM(buf.tab[j].Matricule,&indexF);
         /**************************************************************************/
-
         suppersionIndex(s, &indexP);
         k++;
         // DO THE SAME FOR THE REST OF THE RECORDS IN THE FORCE ARME
@@ -1410,9 +1386,6 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
                     }
                 }
                 suppersionIndex(k1, &indexP);
-//                suppressionIndexM(buf.tab[j].Matricule, &indexM);
-//                suppressionIndexM(buf.tab[j].Matricule,&indexG);
-//                suppressionIndexM(buf.tab[j].Matricule,&indexF);
                 /**************************************************************************/
                 suppersionIndex(s, &indexP);
                 //UPDATE THE PREVIOUS BLOCK
@@ -1422,13 +1395,9 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
             k++;
         }
     }
-//    int count = indexF.nb;
-//    for (int l = 0; l < count; ++l) {
-//        if(indexF.tab[l].indice == indice){
-//            suppressionIndexM(indexF.tab[l].cle,&indexF);
-//        }
-//    }
-        /**********************************************************************/
+
+    //affichIndexPrimaire(indexP);
+    /**********************************************************************/
 
     GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(data->mainWindow),
                                                       GTK_DIALOG_MODAL,
@@ -1438,10 +1407,9 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
     gtk_dialog_run(GTK_DIALOG(warningDialog));
     gtk_widget_destroy(warningDialog);
 
-    printf("\nle cout de suppression est %d lecture et %d ecriture\n",Lecture,Ecriture);
-        //printIndexPrimaire("MATRICULE_INDEX.idx");
-        printf("***************apres*********************\n");
-        printForceIndex("FORCE_ARME_INDEX.idx");
+    gchar message[100];
+    g_snprintf(message, sizeof(message), " Le cout de suppression est \n       %d lecture et %d écriture ", Lecture, Ecriture);
+    show_message_window(message);
 
     //SAVE THE UPDATED INDEXES
     Sauvegarde_Index(indexP);
@@ -1449,11 +1417,9 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
     Sauvegarde_IndexM(fich,indexF);
     Fermer(fich);
     g_free(data);
-
 }
 
 void option1_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Option 1 selected!\n");
     GtkPopover *popover = GTK_POPOVER(data);
     gtk_popover_popdown(popover);
 
@@ -1468,7 +1434,7 @@ void option1_clicked(GtkWidget *widget, gpointer data) {
     gtk_container_add(GTK_CONTAINER(button1_window), vbox);
 
     // Label for the region entry
-    GtkWidget *label = gtk_label_new("Entrer la région à supprimer ces enregistrements:");
+    GtkWidget *label = gtk_label_new("Entrer la Force Armée à supprimer ces enregistrements:");
 
     // Combo box with options
     GtkWidget *comboBox = gtk_combo_box_text_new();
@@ -1499,7 +1465,6 @@ void option1_clicked(GtkWidget *widget, gpointer data) {
 
     // Show all widgets
     gtk_widget_show_all(button1_window);
-
 }
 
 typedef struct {
@@ -1520,7 +1485,6 @@ int calculateAge(date birthDate) {
         (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
         age--;
     }
-
     return age;
 }
 
@@ -1582,12 +1546,6 @@ void validate_button2_clicked(GtkWidget *widget, gpointer userData_option1) {
                 e = buffer.tab[j];
                 GtkWidget *row = create_tree_view(&e);
                 gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
-
-                printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", 0, buffer.tab[j].Matricule, buffer.tab[j].Nom,
-                       buffer.tab[j].Prenom, buffer.tab[j].Matricule, buffer.tab[j].Date_Naissance.day,
-                       buffer.tab[j].Date_Naissance.month, buffer.tab[j].Date_Naissance.year,
-                       buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade, buffer.tab[j].Region_militaire,
-                       buffer.tab[j].Force_armee);
             }
         }
         int z = 1;
@@ -1617,12 +1575,6 @@ void validate_button2_clicked(GtkWidget *widget, gpointer userData_option1) {
                         e = buffer.tab[j];
                         GtkWidget *row = create_tree_view(&e);
                         gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
-
-                        printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", z, buffer.tab[j].Matricule,
-                               buffer.tab[j].Nom, buffer.tab[j].Prenom, buffer.tab[j].Matricule,
-                               buffer.tab[j].Date_Naissance.day, buffer.tab[j].Date_Naissance.month,
-                               buffer.tab[j].Date_Naissance.year, buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade,
-                               buffer.tab[j].Region_militaire, buffer.tab[j].Force_armee);
                         z++;
                     }
                     //UPDATE THE BREVIOUS BLOCK
@@ -1636,7 +1588,9 @@ void validate_button2_clicked(GtkWidget *widget, gpointer userData_option1) {
     }
     Fermer(fichier);
 
-    printf("le cout de recherche est %d lecture et %d ecriture\n",Lecture,Ecriture);
+    gchar message[100];
+    g_snprintf(message, sizeof(message), " Le cout de recherche est \n        %d lecture et %d écriture ", Lecture, Ecriture);
+    show_message_window(message);
 
     // Create a scrolled window
     GtkWidget *scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
@@ -1657,7 +1611,6 @@ void validate_button2_clicked(GtkWidget *widget, gpointer userData_option1) {
 }
 
 void option2_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Option 2 selected!\n");
     GtkPopover *popover = GTK_POPOVER(data);
     gtk_popover_popdown(popover);
 
@@ -1754,7 +1707,6 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
 
     // Retrieve the entered region from the entry buffer
     const char *selected_option = gtk_combo_box_text_get_active_text(data->comboBox);
-    g_print("\nEntered Grade: %s", selected_option);
 
     FILE *F ;
     Ouvrire(&F,"GRADE_INDEX.idx",'A');
@@ -1792,11 +1744,6 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
             GtkWidget *row = create_tree_view(&e);
             gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
 
-            printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s %s\n", 0, buf.tab[j].Matricule, buf.tab[j].Nom,
-                   buf.tab[j].Prenom, buf.tab[j].Matricule, buf.tab[j].Date_Naissance.day,
-                   buf.tab[j].Date_Naissance.month, buf.tab[j].Date_Naissance.year,
-                   buf.tab[j].Wilaya_Naissance, buf.tab[j].Grade, buf.tab[j].Region_militaire,
-                   buf.tab[j].Force_armee, getGradeAssocie(getIndiceGrade(buf.tab[j].Grade)));
         }
         trouv = false;
         k++;
@@ -1821,12 +1768,6 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
                     e = buf.tab[j];
                     GtkWidget *row = create_tree_view(&e);
                     gtk_list_box_insert(GTK_LIST_BOX(listbox), row, -1);
-
-                    printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s %s\n", z, buf.tab[j].Matricule, buf.tab[j].Nom,
-                           buf.tab[j].Prenom, buf.tab[j].Matricule, buf.tab[j].Date_Naissance.day,
-                           buf.tab[j].Date_Naissance.month, buf.tab[j].Date_Naissance.year,
-                           buf.tab[j].Wilaya_Naissance, buf.tab[j].Grade, buf.tab[j].Region_militaire,
-                           buf.tab[j].Force_armee,getGradeAssocie(getIndiceGrade(buf.tab[j].Grade)));
                     //UPDATE THE PREVIOUS BLOCK
                     beforI = i;
                     z++;
@@ -1834,7 +1775,6 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
             }
             k++;
         }
-
     } else {
         printf("il n'y a pas de militaire avec ce grade \n");
     }
@@ -1861,7 +1801,6 @@ void validate_button3_clicked(GtkWidget *widget, gpointer userData_option1_3) {
 const gchar *grades[] = {"Officiers_generaux", "officiers_superieurs", "officiers", "sous_officiers", "hommes_de_troupe"};
 
 void option3_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Option 3 selected!\n");
     GtkPopover *popover = GTK_POPOVER(data);
     gtk_popover_popdown(popover);
 
@@ -1905,7 +1844,6 @@ void option3_clicked(GtkWidget *widget, gpointer data) {
 }
 
 void option4_clicked(GtkWidget *widget, gpointer data) {
-    g_print("Option 4 selected!\n");
     GtkPopover *popover = GTK_POPOVER(data);
     gtk_popover_popdown(popover);
 
@@ -1934,25 +1872,13 @@ void option4_clicked(GtkWidget *widget, gpointer data) {
         Chargement_indexM(Fi,&indexM);
         Lecture = 0;Ecriture = 0;
         Fragmentation(fich);
-        printf("le cout de fragmentation est %d lecture et %d ecriture\n",Lecture,Ecriture);
+
+        gchar message[100];
+        g_snprintf(message, sizeof(message), " Le cout de fragmentation est \n          %d lecture et %d écriture ", Lecture, Ecriture);
+        show_message_window(message);
+
         Fermer(fich);
         Fermer(Fi);
-        printf("***************apres*********************\n");
-        printfFichier("PERSONNEL-ANP_DZ.dat(1RM-Blida)");
-        printf("***************apres*********************\n");
-        printfFichier("PERSONNEL-ANP_DZ.dat(2RM-Oran)");
-        printf("***************apres*********************\n");
-        printfFichier("PERSONNEL-ANP_DZ.dat(3RM-Bechar)");
-        printf("***************apres*********************\n");
-
-        printfFichier("PERSONNEL-ANP_DZ.dat(4RM-Ouargla)");
-        printf("***************apres*********************\n");
-
-        printfFichier("PERSONNEL-ANP_DZ.dat(5RM-Constantine)");
-        printf("***************apres*********************\n");
-
-        printfFichier("PERSONNEL-ANP_DZ.dat(6RM-Tamanrasset)");
-        printf("***************apres*********************\n");
 
         GtkWidget *warningDialog = gtk_message_dialog_new(GTK_WINDOW(gtk_widget_get_toplevel(data)),
                                                           GTK_DIALOG_MODAL,
@@ -1971,7 +1897,6 @@ void option4_clicked(GtkWidget *widget, gpointer data) {
 
     // Destroy the dialog
     gtk_widget_destroy(confirmationDialog);
-
 }
 
 // Callback function for button clicks
@@ -1982,7 +1907,6 @@ void button_clicked(GtkWidget *widget, gpointer data) {
     // Check which button is clicked and create content accordingly
     const char *buttonLabel = (const char *)data;
     if (strcmp(buttonLabel, "Chargement initiale") == 0) {
-        // Create content based on Button 1 with the variables
         create_button1_content(mainWindow, buttonLabel);
     } else if (strcmp(buttonLabel, "Sauvegarde de l'index") == 0) {
         create_button2_content(mainWindow, buttonLabel);
@@ -1999,7 +1923,6 @@ void button_clicked(GtkWidget *widget, gpointer data) {
     } else if (strcmp(buttonLabel, "Afficher les enregistrements qui ils ont [M1 , M2]") == 0) {
         create_button8_content(mainWindow, buttonLabel);
     } else if (strcmp(buttonLabel, "fonctions suppplimentaires") == 0) {
-        //create_button9_content(mainWindow, buttonLabel);
 
         // Create a popover for Button 9
         GtkPopover *popover = GTK_POPOVER(gtk_popover_new(widget));
@@ -2007,6 +1930,11 @@ void button_clicked(GtkWidget *widget, gpointer data) {
         // Create a box to hold the options
         GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
         gtk_container_add(GTK_CONTAINER(popover), box);
+
+        GtkCssProvider *provider0 = gtk_css_provider_new();
+        gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider0), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+        gtk_css_provider_load_from_data(provider0, "button#custom-button:hover { color: #007bff; }", -1, NULL);
 
         // Add 4 buttons as options to the popover
         for (int i = 0; i < G_N_ELEMENTS(option_labels); ++i) {
@@ -2046,19 +1974,14 @@ void button_clicked(GtkWidget *widget, gpointer data) {
 
         // Present the popover next to the button
         gtk_popover_popup(popover);
-
     }
-        g_print("Button %s clicked!\n", buttonLabel);
+    g_print("Button %s clicked!\n", buttonLabel);
 }
 
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
-    // Get screen dimensions
-    GdkScreen *screen = gtk_widget_get_screen(widget);
-    int screen_width = gdk_screen_get_width(screen);
-    int screen_height = gdk_screen_get_height(screen);
 
     // Load the image at its original size
-    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\image000.jpg", NULL);
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\image000.jpg", NULL);
 
     if (background != NULL) {
         // Get the actual size of the drawing area
@@ -2083,20 +2006,15 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     } else {
         g_printerr("Error loading the background image\n");
     }
-
     // Let the default handler do its job
     return FALSE;
 }
 
 
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
-    // Get screen dimensions
-    GdkScreen *screen = gtk_widget_get_screen(widget);
-    int screen_width = gdk_screen_get_width(screen);
-    int screen_height = gdk_screen_get_height(screen);
 
     // Load the image at its original size
-    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\splash0.jpg", NULL);
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\splash0.jpg", NULL);
 
     if (background != NULL) {
         // Get the actual size of the drawing area
@@ -2121,7 +2039,6 @@ gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     } else {
         g_printerr("Error loading the background image\n");
     }
-
     // Let the default handler do its job
     return FALSE;
 }
@@ -2138,6 +2055,13 @@ static gboolean splash_timeout(gpointer data) {
 void on_image_clicked(GtkWidget *widget, gpointer data) {
     // Now, quit the GTK main loop
     gtk_main_quit();
+}
+
+// Callback function for button click event
+void on_button_clicked_popover(GtkWidget *button, gpointer user_data) {
+    // Cast user_data back to GtkPopover and show it
+    GtkPopover *popover = GTK_POPOVER(user_data);
+    gtk_popover_popup(popover);
 }
 
 
@@ -2184,21 +2108,8 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_halign(titleLabel2, GTK_ALIGN_CENTER);
     gtk_box_pack_start(GTK_BOX(vvbox), titleLabel2, FALSE, FALSE, 75);
 
-//    GtkWidget *label = gtk_label_new("Réaliser par : Lyes & Yasser");
-//    // Create a PangoFontDescription for the desired font
-//    PangoFontDescription *font_desc0 = pango_font_description_new();
-//    gtk_widget_set_halign(label, GTK_ALIGN_START);
-//    pango_font_description_set_family(font_desc0, "Arial"); // Set font family
-//    pango_font_description_set_size(font_desc0, PANGO_SCALE * 12); // Set font size
-//    pango_font_description_set_weight(font_desc2, PANGO_WEIGHT_THIN);
-//    // Apply the font to the label
-//    gtk_widget_override_font(label, font_desc0);
-//    // Clean up the font description
-//    pango_font_description_free(font_desc0);
-//    gtk_box_pack_start(GTK_BOX(vvbox), label, FALSE, FALSE, 15);
-
     // Create the title label3
-    GtkWidget *titleLabel3 = gtk_label_new("Copyright @ tout droits resérvés");
+    GtkWidget *titleLabel3 = gtk_label_new("Copyright © tout droits resérvés");
     PangoFontDescription *font_desc3 = pango_font_description_new();
     pango_font_description_set_weight(font_desc3, PANGO_WEIGHT_SEMILIGHT);
     gtk_widget_override_font(titleLabel3, font_desc3);
@@ -2214,7 +2125,6 @@ int main(int argc, char *argv[]) {
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "LYES");
     //gtk_window_set_default_size(GTK_WINDOW(window), 750, 700);
-    // Make it full screen : gtk_window_fullscreen(GTK_WINDOW(window));
     gtk_window_fullscreen(GTK_WINDOW(window));
     gtk_container_set_border_width(GTK_CONTAINER(window), 25);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
@@ -2230,11 +2140,11 @@ int main(int argc, char *argv[]) {
     gtk_container_add(GTK_CONTAINER(window), vbox);
 
 // Create a horizontal box to hold the images and title
-    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 425);
+    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 400);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 // Create the first image button
-    GtkWidget *image1 = gtk_image_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\exit.png");
+    GtkWidget *image1 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\exit.png");
     gtk_widget_set_size_request(image1, 25, 25);
     GtkWidget *button_img1 = gtk_button_new();
     gtk_container_add(GTK_CONTAINER(button_img1), image1);
@@ -2251,21 +2161,46 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_halign(button_img1, GTK_ALIGN_START);
 
 // Create the second image button
-    GtkWidget *image2 = gtk_image_new_from_file("C:\\Users\\Admin\\CLionProjects\\TP_01\\images\\help.png");
+    GtkWidget *image2 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\help.png");
     gtk_widget_set_size_request(image2, 25, 25);
     GtkWidget *button_img2 = gtk_button_new();
     gtk_container_add(GTK_CONTAINER(button_img2), image2);
-// Connect a callback function for the second image button if needed
 
 // Pack the second image button into the horizontal box with right alignment
-    gtk_box_pack_end(GTK_BOX(hbox), button_img2, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(hbox), button_img2, FALSE, FALSE, 5);
     gtk_widget_set_halign(button_img2, GTK_ALIGN_END);
+
+    // Create a label for the popover
+    //GtkWidget *label = gtk_label_new("This is a popover content!");
+
+    // Create a popover
+    GtkWidget *popover = gtk_popover_new(button_img2);
+    //gtk_container_add(GTK_CONTAINER(popover), label);
+
+    // Create a vertical box for the popover content
+    GtkWidget *vbox_description = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_container_add(GTK_CONTAINER(popover), vbox_description);
+
+    // Add labels to the vertical box
+    GtkWidget *label1 = gtk_label_new("Label 1");
+
+    gtk_box_pack_start(GTK_BOX(vbox_description), label1, FALSE, FALSE, 5);
+
+    // Set a minimum size for the popover
+    gtk_widget_set_size_request(popover, 200, -1);
+
+    // Connect the callback function to the button click event
+    g_signal_connect(button_img2, "clicked", G_CALLBACK(on_button_clicked_popover), popover);
 
 // Create the title label
     GtkWidget *titleLabel = gtk_label_new("BIENVENUE DANS NOTRE PROGRAMME");
-    PangoFontDescription *font_desc = pango_font_description_from_string("Britannic 17");
+    PangoFontDescription *font_desc = pango_font_description_from_string("Britannic 19");
     pango_font_description_set_weight(font_desc, PANGO_WEIGHT_HEAVY);
     gtk_widget_override_font(titleLabel, font_desc);
+
+    GdkRGBA gold;
+    gdk_rgba_parse(&gold, /*"#006400"*/"#000000");  // Gold or Yellow color
+    gtk_widget_override_color(titleLabel, GTK_STATE_FLAG_NORMAL, &gold);
 
 // Create a box to hold the title label and center it
     GtkWidget *labelBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -2282,10 +2217,12 @@ int main(int argc, char *argv[]) {
     GtkWidget *secondLabel = gtk_label_new("</>   M E N U   </>");
     PangoFontDescription *font_desc00 = pango_font_description_from_string("Berlin Sans FB 15"); //* Britannic 17 *//
 
+    gtk_widget_override_color(secondLabel, GTK_STATE_FLAG_NORMAL, &gold);
+
     pango_font_description_set_weight(font_desc00, PANGO_WEIGHT_MEDIUM);
     gtk_widget_override_font(secondLabel, font_desc00);
     gtk_widget_set_halign(secondLabel, GTK_ALIGN_CENTER);
-    gtk_box_pack_start(GTK_BOX(vbox), secondLabel, FALSE, FALSE, 15);
+    gtk_box_pack_start(GTK_BOX(vbox), secondLabel, FALSE, FALSE, 10);
     // Don't forget to free the font description when you're done
     pango_font_description_free(font_desc00);
 
@@ -2300,9 +2237,6 @@ int main(int argc, char *argv[]) {
     GtkCssProvider *provider = gtk_css_provider_new();
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-    //const gchar *css = "button#custom-button:hover { background-color: #e3750e; color: #570861; }\n";  // Adjust hover color as needed
-    //gtk_css_provider_load_from_data(provider, css, -1, NULL);
-
     gtk_css_provider_load_from_data(provider, "button#custom-button:hover { color: #007bff; }", -1, NULL);
 
     for (int i = 0; i < 9; ++i) {
@@ -2311,17 +2245,17 @@ int main(int argc, char *argv[]) {
         gtk_widget_set_name(button, "custom-button");  // Give a name to each button
 
         // Create a PangoFontDescription for the desired font
-        PangoFontDescription *fontDesc_menu = pango_font_description_from_string("Source Sans Pro 14");  // Adjust font name and size as needed
+        PangoFontDescription *fontDesc_menu = pango_font_description_from_string("Source Sans Pro 15");  // Adjust font name and size as needed
         gtk_widget_override_font(gtk_bin_get_child(GTK_BIN(button)), fontDesc_menu);
         // Free the font description when finished
         pango_font_description_free(fontDesc_menu);
 
         gtk_box_pack_start(GTK_BOX(buttonBox), button, FALSE, FALSE, 5);
-        gtk_widget_set_size_request(button, 400, 30);
+        gtk_widget_set_size_request(button, 460, 30);
 
         // Set border-radius for rounded corners
         GtkCssProvider *provider_btn = gtk_css_provider_new();
-        const gchar *cssData = "button { border: 1px solid #ffffff; border-radius: 19px; }";
+        const gchar *cssData = "button { border: 1.5px solid #808080; border-radius: 19px; }";
         gtk_css_provider_load_from_data(provider_btn, cssData, -1, NULL);
         gtk_style_context_add_provider(gtk_widget_get_style_context(button), GTK_STYLE_PROVIDER(provider_btn), GTK_STYLE_PROVIDER_PRIORITY_USER);
         g_object_unref(provider_btn);
@@ -2335,7 +2269,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_hide(window);
 
     // Start the splash timeout function
-    g_timeout_add_seconds(5, splash_timeout, NULL);
+    g_timeout_add_seconds(3, splash_timeout, NULL);
 
     // Show the splash window and run the main loop
     gtk_widget_show_all(splash_window);

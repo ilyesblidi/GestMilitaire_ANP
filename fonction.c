@@ -13,21 +13,36 @@
 #include <stdbool.h>
 
 
-//int calculateAge(date birthDate) {
-//    currentDate.day = 1;
-//    currentDate.month = 12;
-//    currentDate.year = 2023;
-//
-//    int age = currentDate.year - birthDate.year;
-//
-//    if (currentDate.month < birthDate.month ||
-//        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-//        age--;
-//    }
-//
-//    return age;
-//}
 
+/**
+ * Calculates the age based on the birth date and returns the actual age.
+ *
+ * @param birthDate The birth date of the person.
+ * @return The calculated age.
+ */
+int calculateAge(date birthDate) {
+    currentDate.day = 31;
+    currentDate.month = 12;
+    currentDate.year = 2023;
+
+    int age = currentDate.year - birthDate.year;
+
+    if (currentDate.month < birthDate.month ||
+        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+        age--;
+    }
+
+    return age;
+}
+
+//************************************************************************
+
+/**
+ * Returns the index of a military region based on its name.
+ *
+ * @param region The name of the military region.
+ * @return The index of the military region, or -1 if not found.
+ */
 int getIndiceMilitaire(char* region){
     int indice;
     for (int i = 0; i < 6; ++i) {
@@ -38,8 +53,16 @@ int getIndiceMilitaire(char* region){
     return indice;
 }
 
+//************************************************************************
+
+/**
+ * Returns the index of the given forceArme in the armedForces array.
+ *
+ * @param forceArme The forceArme to search for.
+ * @return The index of the forceArme in the armedForces array, or -1 if not found.
+ */
 int getIndiceForce(char* forceArme){
-    int indice;
+    int indice ;
     for (int i = 0; i < 8; ++i) {
         if(strcmp(forceArme,armedForces[i])==0){
             indice = i;
@@ -47,6 +70,14 @@ int getIndiceForce(char* forceArme){
     }
     return indice;
 }
+//************************************************************************
+
+/**
+ * Returns the index of a military grade in the array `militaryGrades`.
+ * 
+ * @param grade The military grade to search for.
+ * @return The index of the military grade in the array `militaryGrades`.
+ */
 int getIndiceGrade(char* grade){
     int indice;
     for (int i = 0; i < 19; ++i) {
@@ -68,8 +99,20 @@ int getIndiceGrade(char* grade){
     return indice;
 }
 
+//************************************************************************
+
+
+/**
+ * @brief Gets the index of a grade in the Grades array.
+ * 
+ * This function takes a grade as input and searches for its index in the Grades array.
+ * The Grades array is assumed to contain 5 grades.
+ * 
+ * @param grade The grade to search for.
+ * @return The index of the grade in the Grades array. If the grade is not found, -1 is returned.
+ */
 int getGrade(char *grade){
-    int indice;
+    int indice = -1;
     for (int i = 0; i < 5; ++i) {
         if(strcmp(grade,Grades[i])==0){
             indice = i;
@@ -77,12 +120,33 @@ int getGrade(char *grade){
     }
     return indice;
 }
-const char* getRegionAssocie( int indice){
+
+/**
+ * Returns the military region associated with the given index.
+ *
+ * @param indice The index of the military region.
+ * @return The military region associated with the given index.
+ */
+const char* getRegionAssocie(int indice) {
     return militaryRegions[indice];
 }
-const char* getForceAssocie( int indice){
+
+
+/**
+ * Retrieves the associated armed force based on the given index.
+ *
+ * @param indice The index of the armed force.
+ * @return The associated armed force as a string.
+ */
+const char* getForceAssocie(int indice) {
     return armedForces[indice];
 }
+/**
+ * Retrieves the grade associated with the given index.
+ *
+ * @param indice The index of the grade to retrieve.
+ * @return The grade associated with the given index.
+ */
 const char* getGradeAssocie(int indice){
     return Grades[indice];
 }
@@ -317,6 +381,16 @@ void rechDicoTableIndex(int key, bool *trouv, int *k, Index index) {
     *k = j2;
 }
 
+//**************************************************************
+
+/**
+ * Sequential search in the Secondary index array and returns the position and found.
+ * 
+ * @param cle The key to search for in the Secondary index array.
+ * @param trouv A pointer to a boolean variable that will be set to true if the key is found, otherwise false.
+ * @param pos A pointer to an integer variable that will hold the position of the key in the Secondary index array.
+ * @param index The Secondary index array in which to perform the search.
+ */
 void rechTableIndexM(int cle, bool *trouv, int *pos, IndexM index) {
     *trouv = false;
     for (int i = 0; i < index.nb; i++) {
@@ -344,6 +418,18 @@ void insertionIndex(Ienrg ienrg, int pos, Index *index) {
     index->tab[pos] = ienrg;
     index->nb += 1;
 }
+
+//**************************************************************
+
+/**
+ * Inserts a record into the secondary index.
+ *
+ * This function inserts a record into the secondary index by assigning the given
+ * index value and key to the next available position in the index table.
+ *
+ * @param menrg The record to be inserted into the secondary index.
+ * @param index The secondary index structure.
+ */
 void insertionIndexS(Menrg menrg, IndexM *index){
     int m = index->nb;
     int i = 0;
@@ -353,6 +439,16 @@ void insertionIndexS(Menrg menrg, IndexM *index){
     index->nb += 1;
 }
 
+//**************************************************************
+
+/**
+ * Searches for a military personnel based on their matricule in a given file.
+ * 
+ * @param matricule The matricule of the military personnel to search for.
+ * @param i Pointer to store the block number where the military personnel is found.
+ * @param j Pointer to store the record number where the military personnel is found.
+ * @param fichier The file to search in.
+ */
 void Rech_Militaires(int matricule, bool *existe , int *i, int *j, FILE *fichier) {
     *i = 0;
     *j = 0;
@@ -360,16 +456,10 @@ void Rech_Militaires(int matricule, bool *existe , int *i, int *j, FILE *fichier
     bool trouv  = false;
     rechDicoTableIndex(matricule, &trouv, &pos, indexP);
     *existe = trouv ;
-    if (!trouv) {
-        printf("le militaire que vous recherchez n'exsite pas\n");
-    } else {
+    if (trouv) {
         *i = indexP.tab[pos].adress.nbBloc;
         *j = indexP.tab[pos].adress.nbEnrg;
-        printf(" le militaire que vous recherchez est dans le bloc %d et l'enregistrement %d\n", *i, *j);
         LireDir(fichier, *i, &buffer);
-        printf("le militaire est : %d\t%s\t%s\t%d/%d/%d\t%s\t%s\t%s\t%s\t%s\n", buffer.tab[*j].Matricule, buffer.tab[*j].Nom,
-               buffer.tab[*j].Prenom,buffer.tab[*j].Date_Naissance.day,buffer.tab[*j].Date_Naissance.month,buffer.tab[*j].Date_Naissance.year, buffer.tab[*j].Wilaya_Naissance, buffer.tab[*j].Region_militaire,
-               buffer.tab[*j].Grade, buffer.tab[*j].Groupe_sanguin, buffer.tab[*j].Force_armee);
     }
 }
 //***************************************************************************
@@ -505,13 +595,13 @@ void Chargement_indexM(FILE *Fi, IndexM *index) {
  * @param nbenrg The number of records to load.
  */
 void chargementInitial(FILE *fichier, int nbenrg) {
+
     srand(time(NULL));
     tenrg enrg;
     int i, j, k, nb;
     Ienrg ienrg;
     Menrg menrg,merng1,merng2;
     Adress adress;
-    //Index index1;
     bool trouve = false;
     nb = 1;//on utilise i pour le parcour des elements
     i = 1;
@@ -533,8 +623,7 @@ void chargementInitial(FILE *fichier, int nbenrg) {
 
                 menrg.cle = ienrg.cle;
                 ptr = strdup(enrg.Region_militaire);
-                menrg.indice =
-                        getIndiceMilitaire(ptr);
+                menrg.indice = getIndiceMilitaire(ptr);
 
                 merng1.cle = ienrg.cle;
                 ptr1 = strdup(enrg.Force_armee);
@@ -587,10 +676,9 @@ void chargementInitial(FILE *fichier, int nbenrg) {
     aff_entete(fichier, 2, j);
     Fermer(fichier);
     Sauvegarde_Index(indexP);
-    //affichIndexMilitaire(indexM);
 }
 
-
+//****************************************************************
 
 /**
  * Inserts a record into the file.
@@ -598,70 +686,69 @@ void chargementInitial(FILE *fichier, int nbenrg) {
  * @param fichier The file to insert the record into.
  * @param enrg The record to be inserted.
  */
-//void insertion(FILE *fichier, tenrg enrg, bool *existe , Index *index1, IndexM *index2, IndexM *index3, IndexM *index4) {
-//    Menrg menrg1,menrg2;
-//    int k, N, nb;
-//    N = 0;
-//    nb = 0;
-//    bool trouv = false;
-//    rechDicoTableIndex(enrg.Matricule, &trouv, &k, *index1);
-//    printf("\ntrouv = %d",trouv);
-//    *existe = trouv ;
-//    if (trouv == false) {
-//        Ienrg ienrg;
-//        Menrg menrg;
-//        N = entete(fichier, 1);
-//        if (N != 0) {
-//            LireDir(fichier, N, &buffer);
-//            nb = entete(fichier, 2);
-//        } else {
-//            N = 1;
-//            aff_entete(fichier, 1, 1);
-//            nb = 0;
-//            aff_entete(fichier, 2, nb);
-//        }
-//        if (nb < 1024) {
-//            nb += 1;
-//            buffer.tab[nb - 1] = enrg;
-//            EcrireDir(fichier, N, &buffer);
-//        } else {
-//            nb = 1;
-//            buffer = *alloc_bloc(fichier);
-//            buffer.tab[nb - 1] = enrg;
-//            EcrireDir(fichier, N + 1, &buffer);
-//            aff_entete(fichier, 1, N + 1);
-//        }
-//        aff_entete(fichier, 2, nb);
-//        ienrg.cle = enrg.Matricule;
-//        ienrg.adress.nbBloc = entete(fichier, 1);
-//        ienrg.adress.nbEnrg = entete(fichier, 2)-1;
-//
-//        menrg.indice = getIndiceMilitaire(enrg.Region_militaire);
-//        menrg.cle = enrg.Matricule;
-//
-//        menrg1.indice = getIndiceForce(enrg.Force_armee);
-//        menrg1.cle = enrg.Matricule;
-//
-//        menrg2.indice = getIndiceGrade(enrg.Grade);
-//        menrg2.cle = enrg.Matricule;
-//
-//        insertionIndex(ienrg, k, index1);
-//        insertionIndexS(menrg, index2);
-//        insertionIndexS(menrg1,index3);
-//        insertionIndexS(menrg2,index4);
-//        printf("\ninsertion avec succes.");
-//    } else {
-//        printf("\nl'enregistrement que vous voulez inserer existe deja.\n");
-//    }
-//}
+void insertion(FILE *fichier, tenrg enrg, Index *index1, IndexM *index2, IndexM *index3, IndexM *index4) {
+    Menrg menrg1,menrg2;
+    int k, N, nb;
+    N = 0;
+    nb = 0;
+    bool trouv = false;
+    rechDicoTableIndex(enrg.Matricule, &trouv, &k, *index1);
+    if (trouv == false) {
+        Ienrg ienrg;
+        Menrg menrg;
+        N = entete(fichier, 1);
+        if (N != 0) {
+            LireDir(fichier, N, &buffer);
+            nb = entete(fichier, 2);
+        } else {
+            N = 1;
+            aff_entete(fichier, 1, 1);
+            nb = 0;
+            aff_entete(fichier, 2, nb);
+        }
+        if (nb < 1024) {
+            nb += 1;
+            buffer.tab[nb - 1] = enrg;
+            EcrireDir(fichier, N, &buffer);
+        } else {
+            nb = 1;
+            buffer = *alloc_bloc(fichier);
+            buffer.tab[nb - 1] = enrg;
+            EcrireDir(fichier, N + 1, &buffer);
+            aff_entete(fichier, 1, N + 1);
+        }
+        aff_entete(fichier, 2, nb);
+        ienrg.cle = enrg.Matricule;
+        ienrg.adress.nbBloc = entete(fichier, 1);
+        ienrg.adress.nbEnrg = entete(fichier, 2)-1;
 
+        menrg.indice = getIndiceMilitaire(enrg.Region_militaire);
+        menrg.cle = enrg.Matricule;
+
+        menrg1.indice = getIndiceForce(enrg.Force_armee);
+        menrg1.cle = enrg.Matricule;
+
+        menrg2.indice = getIndiceGrade(enrg.Grade);
+        menrg2.cle = enrg.Matricule;
+
+        insertionIndex(ienrg, k, index1);
+        insertionIndexS(menrg, index2);
+        insertionIndexS(menrg1,index3);
+        insertionIndexS(menrg2,index4);
+        printf("\ninsertion avec succes.");
+    } else {
+        printf("\nl'enregistrement que vous voulez inserer existe deja.\n");
+    }
+}
+
+//****************************************************************
 
 /**
  * @brief Deletes a record based on its key from a file.
  *
  * @param cle The key of the record to be deleted.
  */
-void suppersionEnrg(FILE *fichier, int cle, bool *existe, Index *index1) {
+void suppersionEnrg(FILE *fichier, int cle, Index *index1) {
     bool trouv = false,trouv1 = false;
     int k =0,k1 = 0;
     int N = 2;
@@ -674,7 +761,6 @@ void suppersionEnrg(FILE *fichier, int cle, bool *existe, Index *index1) {
     //nb : le nombre des enrg dans le dernier bloque
     //k : l'indice d'enrg qu'on va supprimer
     rechDicoTableIndex(cle, &trouv, &k, *index1);
-    *existe = trouv ;
     if (trouv) {
         N = entete(fichier, 1);
         i = index1->tab[k].adress.nbBloc;
@@ -723,6 +809,21 @@ void suppersionEnrg(FILE *fichier, int cle, bool *existe, Index *index1) {
     }
 }
 
+//****************************************************************
+
+/**
+ * @brief Removes a record from the file and updates the index.
+ *
+ * This function removes a record from the file specified by the 'fichier' parameter.
+ * It takes the buffer 'buf' and the indices 'i' and 'j' as input to determine the record to be removed.
+ * The 'index1' parameter is a pointer to the index structure that needs to be updated.
+ *
+ * @param fichier The file pointer to the file from which the record needs to be removed.
+ * @param buf The buffer containing the records.
+ * @param i The index of the block in the file.
+ * @param j The index of the record in the block.
+ * @param index1 A pointer to the index structure that needs to be updated.
+ */
 void SuppersionEnrg(FILE *fichier, Buffer *buf, int i, int j, Index *index1) {
     bool trouv1 = false;
     int k1 = 0;
@@ -766,11 +867,13 @@ void SuppersionEnrg(FILE *fichier, Buffer *buf, int i, int j, Index *index1) {
             aff_entete(fichier, 2, 1024);
         }
     }
-    suppersionIndex(k1, index1);
-    suppressionIndexM(buf->tab[j].Matricule, &indexM);
-    suppressionIndexM(buf->tab[j].Matricule,&indexG);
-    suppressionIndexM(buf->tab[j].Matricule,&indexF);
+//    suppersionIndex(k1, index1);
+//    suppressionIndexM(buf->tab[j].Matricule, &indexM);
+//    suppressionIndexM(buf->tab[j].Matricule,&indexG);
 }
+
+//****************************************************************
+
 /**
  * Modifies the military region of a record in the file.
  *
@@ -809,7 +912,17 @@ void modifRegionMelitaire(int matricule, char *nouveauRegion, bool *existe) {
     Fermer(fichier2);
 }
 
+//****************************************************************
 
+/**
+ * @brief Displays military personnel within a given range of matricule numbers.
+ *
+ * This function reads data from a file and displays the military personnel
+ * whose matricule numbers fall within the specified range [M1, M2].
+ *
+ * @param M1 The lower bound of the matricule range.
+ * @param M2 The upper bound of the matricule range.
+ */
 void affichMilitaireIntervalle(int M1, int M2) {
     int inf, sup;
     bool trouv1, trouv2;
@@ -849,84 +962,104 @@ void affichMilitaireIntervalle(int M1, int M2) {
     Fermer(fichier);
 }
 
-//void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge) {
-//
-//    int indice = getIndiceMilitaire(regionMilitaire);
-//    int i, j, nb, age;
-//    int s,sCopy;
-//    FILE *fichier;
-//    int beforI;
-//    int k = 0; // Initialize 'k' to 0
-//    Ouvrire(&fichier,"PERSONNEL-ANP_DZ.dat",'A');
-//    nb = indexP.nb;
-//    //POSITION OF THE FIRST RECORD OF THE REGION
-//    while(indice != indexM.tab[k].indice){
-//        k++;
-//    }
-//    //IF THE FILE IS NOT EMPTY
-//    if (k != indexM.nb) {
-//        _Bool trouv;
-//        //FIND THE ADRESS OF THE FIRST RECORD OF THE REGION IN THE PRIMARY INDEX
-//        rechDicoTableIndex(indexM.tab[k].cle, &trouv, &s, indexP);
-//        if(trouv){
-//            i = indexP.tab[s].adress.nbBloc;
-//            j = indexP.tab[s].adress.nbEnrg;
-//            beforI = i;
-//            buffer = *alloc_bloc(fichier);
-//            LireDir(fichier, i, &buffer);
-//            //CHECK IF THE FIRST RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
-//            age = calculateAge(buffer.tab[j].Date_Naissance);
-//            if ((age >= minAge) && (age <= maxAge)) {
-//                printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", 0, buffer.tab[j].Matricule, buffer.tab[j].Nom,
-//                       buffer.tab[j].Prenom, buffer.tab[j].Matricule, buffer.tab[j].Date_Naissance.day,
-//                       buffer.tab[j].Date_Naissance.month, buffer.tab[j].Date_Naissance.year,
-//                       buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade, buffer.tab[j].Region_militaire,
-//                       buffer.tab[j].Force_armee);
-//            }
-//        }
-//        int z = 1;
-//        k++;
-//        // DO THE SAME FOR THE REST OF THE RECORDS IN THE REGION
-//        while (k < nb) {
-//            //IF THE REGION IS THE SAME AS THE  PARAMETER REGION
-//            if(indexM.tab[k].indice == indice) {
-//                int cle =0;
-//                cle =indexM.tab[k].cle;
-//                //FIN THE ADRESS OF THE RECORD IN THE PRIMARY INDEX
-//
-//                rechDicoTableIndex(cle, &trouv, &sCopy, indexP);
-//                if(trouv){
-//                    s = sCopy;
-//                    j = indexP.tab[s].adress.nbEnrg;
-//                    i = indexP.tab[s].adress.nbBloc;
-//                    //WE READ A NEW BUFFER JUST IF THE RECORD ADDRESS IS IN A NEW BLOCK
-//                    if (i != beforI) {
-//                        buffer = *alloc_bloc(fichier); // Refresh the buffer for each record
-//                        LireDir(fichier, i, &buffer);
-//                    }
-//                    //CHECK IF THE RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
-//                    age = calculateAge(buffer.tab[j].Date_Naissance);
-//                    if ((age >= minAge) && (age <= maxAge)) {
-//                        printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", z, buffer.tab[j].Matricule,
-//                               buffer.tab[j].Nom, buffer.tab[j].Prenom, buffer.tab[j].Matricule,
-//                               buffer.tab[j].Date_Naissance.day, buffer.tab[j].Date_Naissance.month,
-//                               buffer.tab[j].Date_Naissance.year, buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade,
-//                               buffer.tab[j].Region_militaire, buffer.tab[j].Force_armee);
-//                        z++;
-//                    }
-//                    //UPDATE THE BREVIOUS BLOCK
-//                    beforI =i;
-//                }
-//            };
-//            k++;
-//        }
-//    } else {
-//        printf("il n'y a pas de militaire dans cette region \n");
-//    }
-//    Fermer(fichier);
-//}
+//****************************************************************
 
+/**
+ * Searches for military personnel within a specified age range in a given military region.
+ *
+ * @param regionMilitaire The name of the military region.
+ * @param minAge The minimum age of the military personnel to search for.
+ * @param maxAge The maximum age of the military personnel to search for.
+ */
+void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge) {
 
+    int indice = getIndiceMilitaire(regionMilitaire);
+    int i, j, nb, age;
+    int s,sCopy;
+    FILE *fichier;
+    int beforI;
+    int k = 0; // Initialize 'k' to 0
+    Ouvrire(&fichier,"PERSONNEL-ANP_DZ.dat",'A');
+    nb = indexP.nb;
+    //POSITION OF THE FIRST RECORD OF THE REGION
+    while(indice != indexM.tab[k].indice){
+        k++;
+    }
+    //IF THE FILE IS NOT EMPTY
+    if (k != indexM.nb) {
+        _Bool trouv;
+        //FIND THE ADRESS OF THE FIRST RECORD OF THE REGION IN THE PRIMARY INDEX
+        rechDicoTableIndex(indexM.tab[k].cle, &trouv, &s, indexP);
+        if(trouv){
+            i = indexP.tab[s].adress.nbBloc;
+            j = indexP.tab[s].adress.nbEnrg;
+            beforI = i;
+            buffer = *alloc_bloc(fichier);
+            LireDir(fichier, i, &buffer);
+            //CHECK IF THE FIRST RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
+            age = calculateAge(buffer.tab[j].Date_Naissance);
+            if ((age >= minAge) && (age <= maxAge)) {
+                printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", 0, buffer.tab[j].Matricule, buffer.tab[j].Nom,
+                       buffer.tab[j].Prenom, buffer.tab[j].Matricule, buffer.tab[j].Date_Naissance.day,
+                       buffer.tab[j].Date_Naissance.month, buffer.tab[j].Date_Naissance.year,
+                       buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade, buffer.tab[j].Region_militaire,
+                       buffer.tab[j].Force_armee);
+            }
+        }
+        int z = 1;
+        k++;
+        // DO THE SAME FOR THE REST OF THE RECORDS IN THE REGION
+        while (k < nb) {
+            //IF THE REGION IS THE SAME AS THE  PARAMETER REGION
+            if(indexM.tab[k].indice == indice) {
+                int cle =0;
+                cle =indexM.tab[k].cle;
+                //FIN THE ADRESS OF THE RECORD IN THE PRIMARY INDEX
+
+                rechDicoTableIndex(cle, &trouv, &sCopy, indexP);
+                if(trouv){
+                    s = sCopy;
+                    j = indexP.tab[s].adress.nbEnrg;
+                    i = indexP.tab[s].adress.nbBloc;
+                    //WE READ A NEW BUFFER JUST IF THE RECORD ADDRESS IS IN A NEW BLOCK
+                    if (i != beforI) {
+                        buffer = *alloc_bloc(fichier); // Refresh the buffer for each record
+                        LireDir(fichier, i, &buffer);
+                    }
+                    //CHECK IF THE RECORD IS IN THE AGE INTERVAL AND PRINT IT THEN
+                    age = calculateAge(buffer.tab[j].Date_Naissance);
+                    if ((age >= minAge) && (age <= maxAge)) {
+                        printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", z, buffer.tab[j].Matricule,
+                               buffer.tab[j].Nom, buffer.tab[j].Prenom, buffer.tab[j].Matricule,
+                               buffer.tab[j].Date_Naissance.day, buffer.tab[j].Date_Naissance.month,
+                               buffer.tab[j].Date_Naissance.year, buffer.tab[j].Wilaya_Naissance, buffer.tab[j].Grade,
+                               buffer.tab[j].Region_militaire, buffer.tab[j].Force_armee);
+                        z++;
+                    }
+                    //UPDATE THE BREVIOUS BLOCK
+                    beforI =i;
+                }
+            };
+            k++;
+        }
+    } else {
+        printf("il n'y a pas de militaire dans cette region \n");
+    }
+    Fermer(fichier);
+}
+
+//****************************************************************
+
+/**
+ * @brief Creates a new file containing records from a specific region in a source file.
+ * 
+ * This function reads records from the source file and writes them to the destination file
+ * if they belong to the specified region. The region is determined by the regionMilitaire parameter.
+ * 
+ * @param fichierSource The source file to read records from.
+ * @param regionMilitaire The region to filter records by.
+ * @param fichierDesination The destination file to write filtered records to.
+ */
 void creationFichRegionMilitaire(FILE *fichierSource, char *regionMilitaire, FILE *fichierDesination) {
     int indice = getIndiceMilitaire(regionMilitaire);
     int i, j,i1,j1, nb, age;
@@ -995,8 +1128,18 @@ void creationFichRegionMilitaire(FILE *fichierSource, char *regionMilitaire, FIL
     aff_entete(fichierDesination, 1, i1);
     aff_entete(fichierDesination, 2, j1);
 }
+//****************************************************************
 
 
+/**
+ * @brief Fragmentation function divides the personnel data from the source file into separate region files.
+ * 
+ * This function takes a source file pointer as input and creates separate region files for each region of the military.
+ * The region files are named as "1RM-Blida", "2RM-Oran", "3RM-Bechar", "4RM-Ouargla", "5RM-Constantine", and "6RM-Tamanrasset".
+ * The function uses the Ouvrire, creationFichRegionMilitaire, and Fermer functions to open, create, and close the region files respectively.
+ * 
+ * @param fichierSource Pointer to the source file containing personnel data.
+ */
 void Fragmentation(FILE *fichierSource) {
     FILE *f1, *f2, *f3, *f4, *f5, *f6;
     Ouvrire(&f1, "PERSONNEL-ANP_DZ.dat(1RM-Blida)", 'N');
@@ -1019,18 +1162,26 @@ void Fragmentation(FILE *fichierSource) {
     Fermer(f6);
 }
 
+//****************************************************************
 
-
-
-
-
+/**
+ * @brief Removes a specific forceArme from the main file and updates the indexes.
+ * 
+ * This function removes a specific forceArme from the main file "PERSONNEL-ANP_DZ.dat" and updates the primary index and secondary index accordingly.
+ * It first finds the address of the first record of the forceArme in the secondary index, then locates the corresponding record in the primary index.
+ * It deletes the record from the main file and updates the indexes. It repeats this process for the rest of the records in the forceArme.
+ * Finally, it saves the updated indexes.
+ * 
+ * @param forceArme The forceArme to be removed.
+ */
 void supprimerForceArme( char *forceArme) {
     int indice = getIndiceForce(forceArme);
-    FILE *F;
+        FILE *F;
     FILE *fich;
     FILE *Fi;
     FILE *fichierSource;
     Ouvrire(&fichierSource, "PERSONNEL-ANP_DZ.dat", 'A');
+//    Ouvrire(&fic, "PERSONNEL-ANP_DZ.idx", 'A');
     Chargement_index(&indexP);
     Ouvrire(&fich,"FORCE_ARME_INDEX.idx",'A');
     Chargement_indexM(fich,&indexF);
@@ -1054,7 +1205,7 @@ void supprimerForceArme( char *forceArme) {
         beforI = i;
         buf = *alloc_bloc(fichierSource);
         LireDir(fichierSource, i, &buf);
-        SuppersionEnrg(fichierSource,&buf,i,j,&indexP); ///Kayna exception hna
+        SuppersionEnrg(fichierSource,&buf,i,j,&indexP);
         suppersionIndex(s, &indexP);
         k++;
         // DO THE SAME FOR THE REST OF THE RECORDS IN THE FORCE ARME
@@ -1096,10 +1247,17 @@ void supprimerForceArme( char *forceArme) {
     Fermer(fich);
 }
 
+//****************************************************************
 
-
-
-
+/**
+ * @brief Displays the military personnel with a specific rank.
+ * 
+ * This function displays the information of military personnel with a specified rank.
+ * It uses a binary file containing the data of military personnel and two indexes:
+ * a primary index and a secondary index to quickly access the records.
+ * 
+ * @param grade The specified rank.
+ */
 void afficherMilitaireParGrade(char *grade) {
     int indice = getGrade(grade);
     FILE *fichierSource;
@@ -1171,73 +1329,3 @@ void afficherMilitaireParGrade(char *grade) {
     Fermer(fichierSource);
 }
 
-
-//void afficherMilitaireParGrade(char *grade) {
-//    int indice = getGrade(grade);
-//    FILE *fichierSource;
-//    Ouvrire(&fichierSource, "PERSONNEL-ANP_DZ.dat", 'A');
-//    int i, j, nb;
-//    Buffer buf;
-//    int s, sCopy;
-//    int beforI;
-//    int k = 0;
-//    nb = indexP.nb;
-//    //POSITION OF THE FIRST RECORD OF THE GRADE
-//    while(indice != indexG.tab[k].indice){
-//        k++;
-//    }
-//    //IF THE FILE IS NOT EMPTY
-//    if (k != indexG.nb) {
-//        _Bool trouv;
-//        //FIND THE ADRESS OF THE FIRST RECORD OF THE GRADE IN THE PRIMARY INDEX
-//        rechDicoTableIndex(indexG.tab[k].cle, &trouv, &s, indexP);
-//        if(trouv){
-//            i = indexP.tab[s].adress.nbBloc;
-//            j = indexP.tab[s].adress.nbEnrg;
-//            beforI = i;
-//            buf = *alloc_bloc(fichierSource);
-//            LireDir(fichierSource, i, &buf);
-//            //CHECK IF THE FIRST RECORD IS IN THE GRADE AND PRINT IT THEN
-//            printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", 0, buf.tab[j].Matricule, buf.tab[j].Nom,
-//                   buf.tab[j].Prenom, buf.tab[j].Matricule, buf.tab[j].Date_Naissance.day,
-//                   buf.tab[j].Date_Naissance.month, buf.tab[j].Date_Naissance.year,
-//                   buf.tab[j].Wilaya_Naissance, buf.tab[j].Grade, buf.tab[j].Region_militaire,
-//                   buf.tab[j].Force_armee);
-//        }
-//        int z = 1;
-//        k++;
-//        // DO THE SAME FOR THE REST OF THE RECORDS IN THE GRADE
-//        while (k < nb) {
-//            //IF THE GRADE IS THE SAME AS THE PARAMETER GRADE
-//            if(indexG.tab[k].indice == indice) {
-//                int cle =0;
-//                cle =indexG.tab[k].cle;
-//                //FIND THE ADRESS OF THE RECORD IN THE PRIMARY INDEX
-//                rechDicoTableIndex(cle, &trouv, &sCopy, indexP);
-//                if(trouv){
-//                    s = sCopy;
-//                    j = indexP.tab[s].adress.nbEnrg;
-//                    i = indexP.tab[s].adress.nbBloc;
-//                    //WE READ A NEW BUFFER JUST IF THE RECORD ADDRESS IS IN A NEW BLOCK
-//                    if (i != beforI) {
-//                        buf = *alloc_bloc(fichierSource); // Refresh the buffer for each record
-//                        LireDir(fichierSource, i, &buf);
-//                    }
-//                    //CHECK IF THE RECORD IS IN THE GRADE AND PRINT IT THEN
-//                    printf("%d/ %d %s  %s  %d  %d/%d/%d    %s  %s  %s  %s \n", z, buf.tab[j].Matricule,
-//                           buf.tab[j].Nom, buf.tab[j].Prenom, buf.tab[j].Matricule,
-//                           buf.tab[j].Date_Naissance.day, buf.tab[j].Date_Naissance.month,
-//                           buf.tab[j].Date_Naissance.year, buf.tab[j].Wilaya_Naissance, buf.tab[j].Grade,
-//                           buf.tab[j].Region_militaire, buf.tab[j].Force_armee);
-//                    z++;
-//                    //UPDATE THE PREVIOUS BLOCK
-//                    beforI =i;
-//                }
-//            };
-//            k++;
-//        }
-//    } else {
-//        printf("il n'y a pas de militaire avec ce grade \n");
-//    }
-//    Fermer(fichierSource);
-//}

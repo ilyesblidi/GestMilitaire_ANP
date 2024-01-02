@@ -9,6 +9,7 @@
 
 int rendomNumber(int min, int max);
 tenrg creerEnrg();
+
 int getIndiceMilitaire(char* region);
 int getIndiceForce(char* forceArme);
 int getIndiceGrade(char* grade);
@@ -26,19 +27,17 @@ void Fragmentation(FILE *fichierSource);
 void chargementInitial(FILE *fichier, int nbenrg);
 void Chargement_index(Index *index);
 void Sauvegarde_Index(Index index);
-void Rech_Militaires(int matricule, bool *existe , int *i, int *j, FILE *fichier);
-void insertion(FILE *fichier, tenrg enrg, bool *existe , Index *index1, IndexM *index2, IndexM *index3, IndexM *index4);
-
-void suppersionEnrg(FILE *fichier, int cle, bool *existe, Index *index1);
+void Rech_Militaires(int matricule, bool *existe ,int *i, int *j, FILE *fichier);
+void insertion(FILE *fichier, tenrg enrg, Index *index1, IndexM *index2, IndexM *index3, IndexM *index4);
+void suppersionEnrg(FILE *fichier, int cle, Index *index1);
 void SuppersionEnrg(FILE *fichier, Buffer *buf, int i, int j, Index *index1);
-
-void modifRegionMelitaire(int matricule, char *nouveauRegion, bool *existe);
+void modifRegionMelitaire(int matricule, char *nouveauRegion ,bool *existe);
 void affichMilitaireIntervalle(int M1, int M2);
 
 //***************************************************************************
 //-----------------------les fonctions facultatifs----------------------------
-//void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge);
-//void afficherMilitaireParGrade(char *grade);
+void rechIntervaleAgeRegion(char *regionMilitaire, int minAge, int maxAge);
+void afficherMilitaireParGrade(char *grade);
 void creationFichRegionMilitaire(FILE *fichierSource, char *regionMilitaire, FILE *fichierDesination);
 void supprimerForceArme(char *forceArme);
 
@@ -53,5 +52,6 @@ void insertionIndex(Ienrg ienrg, int pos, Index *index);
 void insertionIndexS(Menrg menrg, IndexM *index);
 void suppersionIndex(int pos, Index *index);
 void suppressionIndexM(int cle, IndexM *index);
+
 
 #endif //FONCTION_H

@@ -1,8 +1,8 @@
-"C:\Program Files\JetBrains\CLion 2023.3.2\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.3.2/bin/ninja/win/x64/ninja.exe" set(CMAKE_SYSTEM_NAME Windows) set(CMAKE_SYSTEM_VERSION 10.0 CACHE TYPE INTERNAL) set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc) set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++) set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres) set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER) set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY) set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY) -G Ninja -S C:\Users\Admin\CLionProjects\TP_01 -B C:\Users\Admin\CLionProjects\TP_01\cmake-build-debug
+"C:\Program Files\JetBrains\CLion 2023.3.2\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.3.2/bin/ninja/win/x64/ninja.exe" set(CMAKE_SYSTEM_NAME Windows) set(CMAKE_SYSTEM_VERSION 10.0 CACHE TYPE INTERNAL) set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc) set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++) set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres) set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER) set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY) set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY) -G Ninja -S C:\Users\Admin\OneDrive\Bureau\JTL\TP_Final -B C:\Users\Admin\OneDrive\Bureau\JTL\TP_Final\cmake-build-debug
 CMake Warning:
   Ignoring extra path from command line:
 
-   "C:/Users/Admin/CLionProjects/TP_01/cmake-build-debug/set(CMAKE_SYSTEM_NAME"
+   "C:/Users/Admin/OneDrive/Bureau/JTL/TP_Final/cmake-build-debug/set(CMAKE_SYSTEM_NAME"
 
 
 CMake Warning:
@@ -11,6 +11,15 @@ CMake Warning:
    "ONLY)"
 
 
--- Configuring done (0.1s)
+-- The C compiler identification is GNU 13.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/msys64/mingw64/bin/cc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found PkgConfig: C:/msys64/mingw64/bin/pkg-config.exe (found version "2.1.0") 
+-- Checking for module 'gtk+-3.0'
+--   Found gtk+-3.0, version 3.24.39
+-- Configuring done (5.8s)
 -- Generating done (0.0s)
--- Build files have been written to: C:/Users/Admin/CLionProjects/TP_01/cmake-build-debug
+-- Build files have been written to: C:/Users/Admin/OneDrive/Bureau/JTL/TP_Final/cmake-build-debug
