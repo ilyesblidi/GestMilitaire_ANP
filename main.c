@@ -2068,28 +2068,30 @@ void on_button_clicked_popover(GtkWidget *button, gpointer user_data) {
     gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(label, GTK_ALIGN_CENTER);
 
-    const gchar *label_text = "<b>                    GestMilitaireANP</b>\n réalisé par "
+    const gchar *label_text = "<b>                        <span foreground='brown'>GestMilitaireANP</span></b>\n\n réalisé par "
                               "<span foreground='green'>Yasser Korzane et Lyes Blidi</span>\n"
                               "sous la supervision du <b>M. KERMI ADEL</b>\n\n"
                               "          Une application de gestion du\n"
                               "personnel militaire de l'Armée Nationale\n"
-                              "                Populaire (ANP).\n\n"
+                              "                          Populaire (ANP)\n\n"
+                              "   Conçu comme un travail pratique du\n"
+                              "  module <b>SFSD</b> de l'année universitaire\n"
+                              "                             2023/2024\n\n"
                               "  Le projet vise à créer le fichier binaire\n"
-                              "\"PERSONNEL-ANP_DZ.dat\" en utilisant \n"
-                              "la méthode \"TObarreF\", avec l'intégration \n"
-                              "d'un index dense en MC et d'un fichier \n"
-                              "index TOF pour une gestion optimale\n"
-                              "                   des données.";
+                              "  \"PERSONNEL-ANP_DZ.dat\" en utilisant \n"
+                              "la méthode <b>TObarreF</b> avec l'intégration \n"
+                              "  d'un index dense en MC et d'un fichier \n"
+                              "  <b>index TOF</b> pour une gestion optimale\n"
+                              "                    des données militaires";
 
     gtk_label_set_markup(GTK_LABEL(label), label_text);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE); // Enable line wrap
-
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     // Create a popover
     GtkWidget *popover = gtk_popover_new(image);
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-    PangoFontDescription *font_desc_popover = pango_font_description_from_string("Source Sans Pro 14"); //* Berlin Sans FB 15 *//
+    PangoFontDescription *font_desc_popover = pango_font_description_from_string("HP Simplified Regular 15"); //* Berlin Sans FB 15 *//
     gtk_widget_override_font(label, font_desc_popover);
-    gtk_container_set_border_width(GTK_CONTAINER(popover),19);
+    gtk_container_set_border_width(GTK_CONTAINER(popover),25);
     gtk_container_add(GTK_CONTAINER(popover), label);
 
     pango_font_description_free(font_desc_popover);
@@ -2252,7 +2254,7 @@ int main(int argc, char *argv[]) {
     GtkCssProvider *provider = gtk_css_provider_new();
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-    gtk_css_provider_load_from_data(provider, "button#custom-button:hover { color: #007bff; }", -1, NULL);
+    gtk_css_provider_load_from_data(provider, "button#custom-button:hover { color: #007bff;}", -1, NULL);
 
     for (int i = 0; i < 9; ++i) {
 
@@ -2284,7 +2286,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_hide(window);
 
     // Start the splash timeout function
-    g_timeout_add_seconds(3, splash_timeout, NULL);
+    g_timeout_add_seconds(2, splash_timeout, NULL);
 
     // Show the splash window and run the main loop
     gtk_widget_show_all(splash_window);
