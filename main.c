@@ -1981,7 +1981,7 @@ void button_clicked(GtkWidget *widget, gpointer data) {
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 
     // Load the image at its original size
-    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\image000.jpg", NULL);
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\1.png", NULL);
 
     if (background != NULL) {
         // Get the actual size of the drawing area
