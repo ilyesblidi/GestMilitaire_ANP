@@ -9,6 +9,7 @@
 
 int rendomNumber(int min, int max);
 tenrg creerEnrg();
+int calculateAge(date birthDate);
 
 int getIndiceMilitaire(char* region);
 int getIndiceForce(char* forceArme);

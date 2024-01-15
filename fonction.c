@@ -84,11 +84,11 @@ int getIndiceGrade(char* grade){
         if(strcmp(grade, militaryGrades[i])==0){
             if( i>= 0 && i <= 3 ){
                 indice = 0;
-            }else if (i>= 4 && i <= 7 ){
+            }else if (i>= 4 && i <= 6 ){
                 indice = 1;
-            }else if (i>= 8 && i<= 12){
+            }else if (i>= 7 && i<= 11){
                 indice = 2;
-            }else if(i>= 13 && i<= 15){
+            }else if(i>= 12 && i<= 15){
                 indice = 3;
             }else{
                 indice = 4;

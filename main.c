@@ -173,6 +173,7 @@ void create_button1_content(GtkWidget *mainWindow, const char *buttonLabel) {
 
     // Create an entry buffer for the number
     GtkEntryBuffer *entryBuffer = gtk_entry_buffer_new(NULL, 0);
+    gtk_entry_buffer_set_max_length(entryBuffer, 6);  // Set maximum length to 6 characters
 
     // Create an entry widget for the number
     GtkWidget *entryNumber = gtk_entry_new_with_buffer(entryBuffer);
@@ -1324,7 +1325,7 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
                 aff_entete(fichierSource, 2, 1024);
             }
         }
-        suppersionIndex(k1, &indexP);
+//        suppersionIndex(k1, &indexP);
         /**************************************************************************/
         suppersionIndex(s, &indexP);
         k++;
@@ -1385,12 +1386,12 @@ void validate_button1_clicked(GtkWidget *widget, gpointer userData_option1_3) {
                         aff_entete(fichierSource, 2, 1024);
                     }
                 }
-                suppersionIndex(k1, &indexP);
+                //suppersionIndex(k1, &indexP);
                 /**************************************************************************/
                 suppersionIndex(s, &indexP);
                 //UPDATE THE PREVIOUS BLOCK
                 beforI = i;
-            };
+            }
             trouv =false;
             k++;
         }
@@ -1474,19 +1475,19 @@ typedef struct {
     GtkEntryBuffer *entryBuffer3;
 } UserData_option1;
 
-int calculateAge(date birthDate) {
-    currentDate.day = 31;
-    currentDate.month = 12;
-    currentDate.year = 2023;
-
-    int age = currentDate.year - birthDate.year;
-
-    if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-        age--;
-    }
-    return age;
-}
+//int calculateAge(date birthDate) {
+//    currentDate.day = 31;
+//    currentDate.month = 12;
+//    currentDate.year = 2023;
+//
+//    int age = currentDate.year - birthDate.year;
+//
+//    if (currentDate.month < birthDate.month ||
+//        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+//        age--;
+//    }
+//    return age;
+//}
 
 // Callback function for the "Validate" button
 void validate_button2_clicked(GtkWidget *widget, gpointer userData_option1) {
@@ -1922,7 +1923,7 @@ void button_clicked(GtkWidget *widget, gpointer data) {
         create_button7_content(mainWindow, buttonLabel);
     } else if (strcmp(buttonLabel, "Afficher les enregistrements qui ils ont [M1 , M2]") == 0) {
         create_button8_content(mainWindow, buttonLabel);
-    } else if (strcmp(buttonLabel, "fonctions suppplimentaires") == 0) {
+    } else if (strcmp(buttonLabel, "fonctions supplémentaires") == 0) {
 
         // Create a popover for Button 9
         GtkPopover *popover = GTK_POPOVER(gtk_popover_new(widget));
@@ -1941,7 +1942,8 @@ void button_clicked(GtkWidget *widget, gpointer data) {
             GtkWidget *option_button = gtk_button_new_with_label(option_labels[i]);
             gtk_box_pack_start(GTK_BOX(box), option_button, FALSE, FALSE, 10);
 
-            PangoFontDescription *fontDesc_menu2 = pango_font_description_from_string("Source Sans Pro 14");  // Adjust font name and size as needed
+            PangoFontDescription *fontDesc_menu2 = pango_font_description_from_string("Source Sans Pro 15");  // Adjust font name and size as needed
+            pango_font_description_set_weight(fontDesc_menu2, PANGO_WEIGHT_SEMIBOLD);
             gtk_widget_override_font(gtk_bin_get_child(GTK_BIN(option_button)), fontDesc_menu2);
             // Free the font description when finished
             pango_font_description_free(fontDesc_menu2);
@@ -1981,7 +1983,7 @@ void button_clicked(GtkWidget *widget, gpointer data) {
 gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 
     // Load the image at its original size
-    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\image000.jpg", NULL);
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_Version de presentation\\images\\1.png", NULL);
 
     if (background != NULL) {
         // Get the actual size of the drawing area
@@ -2014,7 +2016,7 @@ gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 gboolean on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
 
     // Load the image at its original size
-    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\splash0.jpg", NULL);
+    GdkPixbuf *background = gdk_pixbuf_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_Version de presentation\\images\\splash0.jpg", NULL);
 
     if (background != NULL) {
         // Get the actual size of the drawing area
@@ -2068,28 +2070,30 @@ void on_button_clicked_popover(GtkWidget *button, gpointer user_data) {
     gtk_widget_set_halign(label, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(label, GTK_ALIGN_CENTER);
 
-    const gchar *label_text = "<b>                    GestMilitaireANP</b>\n réalisé par "
+    const gchar *label_text = "<b>                        <span foreground='brown'>GestMilitaireANP</span></b>\n\n réalisé par "
                               "<span foreground='green'>Yasser Korzane et Lyes Blidi</span>\n"
                               "sous la supervision du <b>M. KERMI ADEL</b>\n\n"
                               "          Une application de gestion du\n"
                               "personnel militaire de l'Armée Nationale\n"
-                              "                Populaire (ANP).\n\n"
+                              "                          Populaire (ANP)\n\n"
+                              "   Conçu comme un travail pratique du\n"
+                              "  module <b>SFSD</b> de l'année universitaire\n"
+                              "                             2023/2024\n\n"
                               "  Le projet vise à créer le fichier binaire\n"
-                              "\"PERSONNEL-ANP_DZ.dat\" en utilisant \n"
-                              "la méthode \"TObarreF\", avec l'intégration \n"
-                              "d'un index dense en MC et d'un fichier \n"
-                              "index TOF pour une gestion optimale\n"
-                              "                   des données.";
+                              "  \"PERSONNEL-ANP_DZ.dat\" en utilisant \n"
+                              "la méthode <b>TObarreF</b> avec l'intégration \n"
+                              "  d'un index dense en MC et d'un fichier \n"
+                              "  <b>index TOF</b> pour une gestion optimale\n"
+                              "                    des données militaires";
 
     gtk_label_set_markup(GTK_LABEL(label), label_text);
-    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE); // Enable line wrap
-
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     // Create a popover
     GtkWidget *popover = gtk_popover_new(image);
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-    PangoFontDescription *font_desc_popover = pango_font_description_from_string("Source Sans Pro 14"); //* Berlin Sans FB 15 *//
+    PangoFontDescription *font_desc_popover = pango_font_description_from_string("HP Simplified Regular 15"); //* Berlin Sans FB 15 *//
     gtk_widget_override_font(label, font_desc_popover);
-    gtk_container_set_border_width(GTK_CONTAINER(popover),19);
+    gtk_container_set_border_width(GTK_CONTAINER(popover),25);
     gtk_container_add(GTK_CONTAINER(popover), label);
 
     pango_font_description_free(font_desc_popover);
@@ -2178,7 +2182,7 @@ int main(int argc, char *argv[]) {
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 // Create the first image button
-    GtkWidget *image1 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\exit.png");
+    GtkWidget *image1 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_Version de presentation\\images\\exit.png");
     gtk_widget_set_size_request(image1, 25, 25);
     GtkWidget *button_img1 = gtk_button_new();
     gtk_container_add(GTK_CONTAINER(button_img1), image1);
@@ -2195,7 +2199,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_halign(button_img1, GTK_ALIGN_START);
 
 // Create the second image button
-    GtkWidget *image2 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\JTL\\TP_Final\\images\\help.png");
+    GtkWidget *image2 = gtk_image_new_from_file("C:\\Users\\Admin\\OneDrive\\Bureau\\TP\\TP_Version de presentation\\images\\help.png");
     gtk_widget_set_size_request(image2, 25, 25);
     GtkWidget *button_img2 = gtk_button_new();
     gtk_container_add(GTK_CONTAINER(button_img2), image2);
@@ -2237,7 +2241,7 @@ int main(int argc, char *argv[]) {
     pango_font_description_set_weight(font_desc00, PANGO_WEIGHT_MEDIUM);
     gtk_widget_override_font(secondLabel, font_desc00);
     gtk_widget_set_halign(secondLabel, GTK_ALIGN_CENTER);
-    gtk_box_pack_start(GTK_BOX(vbox), secondLabel, FALSE, FALSE, 10);
+    gtk_box_pack_start(GTK_BOX(vbox), secondLabel, FALSE, FALSE, 5);
     // Don't forget to free the font description when you're done
     pango_font_description_free(font_desc00);
 
@@ -2247,12 +2251,12 @@ int main(int argc, char *argv[]) {
     gtk_container_add(GTK_CONTAINER(vbox), buttonBox);
 
     // Create five buttons with the color orange
-    const char *button_labels[] = {"Chargement initiale", "Sauvegarde de l'index", "Chargement de l'index", "Recherche d'un militaire par son matricule", "Insertion d'un nouveau enregistrement", "Suppression d'un enregistrement", "Modifier la region melitaire d'un enregistrement", "Afficher les enregistrements qui ils ont [M1 , M2]", "fonctions suppplimentaires"};
+    const char *button_labels[] = {"Chargement initiale", "Sauvegarde de l'index", "Chargement de l'index", "Recherche d'un militaire par son matricule", "Insertion d'un nouveau enregistrement", "Suppression d'un enregistrement", "Modifier la region melitaire d'un enregistrement", "Afficher les enregistrements qui ils ont [M1 , M2]", "fonctions supplémentaires"};
 
     GtkCssProvider *provider = gtk_css_provider_new();
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-    gtk_css_provider_load_from_data(provider, "button#custom-button:hover { color: #007bff; }", -1, NULL);
+    gtk_css_provider_load_from_data(provider, "button#custom-button:hover { color: #007bff;}", -1, NULL);
 
     for (int i = 0; i < 9; ++i) {
 
@@ -2260,13 +2264,14 @@ int main(int argc, char *argv[]) {
         gtk_widget_set_name(button, "custom-button");  // Give a name to each button
 
         // Create a PangoFontDescription for the desired font
-        PangoFontDescription *fontDesc_menu = pango_font_description_from_string("Source Sans Pro 15");  // Adjust font name and size as needed
+        PangoFontDescription *fontDesc_menu = pango_font_description_from_string("Sours Sans Pro 15");  // Adjust font name and size as needed
+        pango_font_description_set_weight(fontDesc_menu, PANGO_WEIGHT_BOLD);
         gtk_widget_override_font(gtk_bin_get_child(GTK_BIN(button)), fontDesc_menu);
         // Free the font description when finished
         pango_font_description_free(fontDesc_menu);
 
-        gtk_box_pack_start(GTK_BOX(buttonBox), button, FALSE, FALSE, 5);
-        gtk_widget_set_size_request(button, 460, 30);
+        gtk_box_pack_start(GTK_BOX(buttonBox), button, FALSE, FALSE, 2);
+        gtk_widget_set_size_request(button, 550, 42);
 
         // Set border-radius for rounded corners
         GtkCssProvider *provider_btn = gtk_css_provider_new();
@@ -2284,7 +2289,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_hide(window);
 
     // Start the splash timeout function
-    g_timeout_add_seconds(3, splash_timeout, NULL);
+    g_timeout_add_seconds(2, splash_timeout, NULL);
 
     // Show the splash window and run the main loop
     gtk_widget_show_all(splash_window);
